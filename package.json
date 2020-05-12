@@ -1,0 +1,101 @@
+{
+  "name": "boilerplate-typescript",
+  "private": true,
+  "version": "1.0.1",
+  "description": "My personal boilerplate for new projects using typescript",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "npm run build:clean && npm run compile",
+    "build:docs": "typedoc --options typedoc.js --plugin typedoc-plugin-markdown src/ --out docs",
+    "build:clean": "rm -rf build/*",
+    "compile": "tsc",
+    "debug": "ts-node-dev --inspect -- src/index.ts",
+    "debug:break": "ts-node-dev --inspect-brk -- src/index.ts",
+    "test": "jest",
+    "test:ci": "jest --ci --coverage",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest",
+    "test:watch": "jest --watch",
+    "test:coverage:watch": "jest --coverage --watch",
+    "toc": "toc-md README.md README.md",
+    "add-readme": "git add README.md",
+    "lint-staged": "lint-staged",
+    "prepare-publish": "npm run changelog:prepare && version-bump && npm run changelog:release && npm run changelog:stamp",
+    "version-bump": "version-bump",
+    "changelog:help": "changelog-version",
+    "changelog:verify": "changelog-version verify",
+    "changelog:prepare": "changelog-version prepare",
+    "changelog:stamp": "git-commit-stamper parse CHANGELOG.md",
+    "changelog:release": "changelog-version release",
+    "lint": "prettier-standard src/**/*.ts && standardx src/**/*.ts",
+    "ts-node-dev": "ts-node-dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theogravity/boilerplate.git"
+  },
+  "author": "Theo Gravity <theo@suteki.nu>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/theogravity/boilerplate/issues"
+  },
+  "homepage": "https://github.com/theogravity/boilerplate#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@theo.gravity/changelog-version": "2.1.10",
+    "@theo.gravity/version-bump": "2.0.8",
+    "@types/jest": "25.2.1",
+    "@types/node": "^13.11.0",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "eslint": "6.8.0",
+    "git-commit-stamper": "^1.0.6",
+    "jest": "25.2.7",
+    "jest-cli": "25.2.7",
+    "jest-junit-reporter": "1.1.0",
+    "lint-staged": "10.1.1",
+    "pre-commit": "1.2.2",
+    "prettier-standard": "16.2.1",
+    "standardx": "^5.0.0",
+    "toc-md-alt": "^0.3.2",
+    "ts-jest": "25.3.1",
+    "ts-node": "8.8.1",
+    "ts-node-dev": "1.0.0-pre.44",
+    "typedoc": "^0.17.3",
+    "typedoc-plugin-markdown": "^2.2.17",
+    "typescript": "3.8.3"
+  },
+  "eslintConfig": {
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "modules": true
+      }
+    },
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint/eslint-plugin"
+    ],
+    "rules": {
+      "@typescript-eslint/no-unused-vars": [
+        2,
+        {
+          "args": "none"
+        }
+      ]
+    }
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "prettier-standard",
+      "git add"
+    ]
+  },
+  "pre-commit": [
+    "toc",
+    "lint-staged",
+    "test:ci",
+    "build"
+  ]
+}
