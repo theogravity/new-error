@@ -1,3 +1,5 @@
-const blah = 'abcd'
+import { BaseError } from './error-types/BaseError'
+import { BaseRegistryError } from './error-types/BaseRegistryError'
+import { ErrorRegistry } from './ErrorRegistry'
 
-console.log(blah)
+export { BaseError, BaseRegistryError, ErrorRegistry }

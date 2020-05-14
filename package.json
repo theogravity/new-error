@@ -1,13 +1,11 @@
 {
-  "name": "boilerplate-typescript",
-  "private": true,
+  "name": "error-bearer",
   "version": "1.0.1",
   "description": "My personal boilerplate for new projects using typescript",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
     "build": "npm run build:clean && npm run compile",
-    "build:docs": "typedoc --options typedoc.js --plugin typedoc-plugin-markdown src/ --out docs",
     "build:clean": "rm -rf build/*",
     "compile": "tsc",
     "debug": "ts-node-dev --inspect -- src/index.ts",
@@ -32,15 +30,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/theogravity/boilerplate.git"
+    "url": "git+https://github.com/theogravity/error-bearer.git"
   },
   "author": "Theo Gravity <theo@suteki.nu>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/theogravity/boilerplate/issues"
+    "url": "https://github.com/theogravity/error-bearer/issues"
   },
-  "homepage": "https://github.com/theogravity/boilerplate#readme",
-  "dependencies": {},
+  "homepage": "https://github.com/theogravity/error-bearer#readme",
+  "dependencies": {
+    "es6-error": "^4.1.1",
+    "sprintf-js": "^1.1.2"
+  },
   "devDependencies": {
     "@theo.gravity/changelog-version": "2.1.10",
     "@theo.gravity/version-bump": "2.0.8",
@@ -61,8 +62,6 @@
     "ts-jest": "25.3.1",
     "ts-node": "8.8.1",
     "ts-node-dev": "1.0.0-pre.44",
-    "typedoc": "^0.17.3",
-    "typedoc-plugin-markdown": "^2.2.17",
     "typescript": "3.8.3"
   },
   "eslintConfig": {
