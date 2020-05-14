@@ -1,4 +1,26 @@
 /**
+ * A High Level Error definition defined by the user
+ */
+export interface HighLevelErrorDef {
+  /**
+   * The class name of the generated error
+   */
+  className: string
+
+  /**
+   * A numeric representation of the High Level Error. Used as the default
+   * if a Low Level Error is not specified or defined.
+   */
+  codeNo?: number
+
+  /**
+   * Protocol-specific status code, such as an HTTP status code. Used as the
+   * default if a Low Level Error status code is not specified or defined.
+   */
+  statusCode: any
+}
+
+/**
  * A Low Level Error definition defined by the user
  */
 export interface LowLevelErrorDef {
@@ -10,8 +32,8 @@ export interface LowLevelErrorDef {
   message: string
 
   /**
-   * A numeric representation of the sub-category.
-   * Useful if you want to omit the sub category code
+   * A numeric representation of the Low Level Error.
+   * Useful if you want to omit the Low Level Error name
    * and display this instead to the user.
    */
   codeNo?: number
@@ -25,11 +47,11 @@ export interface LowLevelErrorDef {
 /**
  * Low Level Error stored in the ErrorRegistry
  */
-export interface LowLevelError extends LowLevelErrorDef {
+export interface LowLevelErrorInternal extends LowLevelErrorDef {
   /**
    * Name of the Low Level Error
    */
-  code: string
+  code?: string
 }
 
 export interface IBaseError {

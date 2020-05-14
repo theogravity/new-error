@@ -1,7 +1,7 @@
 {
   "name": "error-bearer",
-  "version": "1.0.1",
-  "description": "My personal boilerplate for new projects using typescript",
+  "version": "1.0.0",
+  "description": "Production-level custom errors in Typescript that you can throw",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
