@@ -1,8 +1,4 @@
-import {
-  HighLevelErrorDef,
-  LowLevelErrorInternal,
-  LowLevelErrorDef
-} from './interfaces'
+import { HighLevelErrorInternal, LowLevelErrorInternal } from './interfaces'
 import { BaseRegistryError } from './error-types/BaseRegistryError'
 
 /**
@@ -10,15 +6,15 @@ import { BaseRegistryError } from './error-types/BaseRegistryError'
  * generates custom errors from those definitions.
  */
 export class ErrorRegistry<
-  ErrCode extends LowLevelErrorDef,
-  HLError extends Record<keyof HLError, HighLevelErrorDef>,
-  LLErrorName extends Record<keyof LLErrorName, LowLevelErrorDef>,
+  ErrCode extends LowLevelErrorInternal,
+  HLError extends Record<keyof HLError, HighLevelErrorInternal>,
+  LLErrorName extends Record<keyof LLErrorName, LowLevelErrorInternal>,
   LLError extends Record<keyof LLErrorName, LowLevelErrorInternal>
 > {
   /**
    * High level error definitions
    */
-  protected highLevelErrors: Record<keyof HLError, HighLevelErrorDef>
+  protected highLevelErrors: Record<keyof HLError, HighLevelErrorInternal>
   /**
    * Cached high level error classes
    */
@@ -50,7 +46,7 @@ export class ErrorRegistry<
    */
   protected getHighLevelError (
     highLvErrName: keyof HLError
-  ): HighLevelErrorDef {
+  ): HighLevelErrorInternal {
     return this.highLevelErrors[highLvErrName]
   }
 

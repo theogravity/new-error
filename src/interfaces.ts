@@ -1,12 +1,7 @@
 /**
  * A High Level Error definition defined by the user
  */
-export interface HighLevelErrorDef {
-  /**
-   * The class name of the generated error
-   */
-  className: string
-
+export interface HighLevelError {
   /**
    * A user-friendly code to show to a client that represents the high
    * level error.
@@ -18,6 +13,16 @@ export interface HighLevelErrorDef {
    * default if a Low Level Error status code is not specified or defined.
    */
   statusCode?: string | number
+}
+
+/**
+ * A High Level Error definition defined by the user for a registry
+ */
+export interface HighLevelErrorInternal extends HighLevelError {
+  /**
+   * The class name of the generated error
+   */
+  className: string
 }
 
 /**
@@ -51,6 +56,16 @@ export interface LowLevelErrorInternal extends LowLevelErrorDef {
    * Name of the Low Level Error
    */
   type?: string
+}
+
+/**
+ * A Low Level Error definition defined by the user when a registry is not involved
+ */
+export interface LowLevelError extends LowLevelErrorDef {
+  /**
+   * Name of the Low Level Error
+   */
+  type: string
 }
 
 export interface IBaseError {

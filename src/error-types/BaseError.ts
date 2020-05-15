@@ -25,7 +25,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    * Set the error type
    * @param type
    */
-  protected withErrorType (type: string) {
+  withErrorType (type: string) {
     this._type = type
     return this
   }
@@ -34,7 +34,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    * Set high level error code
    * @param code
    */
-  protected withErrorCode (code: string | number) {
+  withErrorCode (code: string | number) {
     this._code = code
     return this
   }
@@ -43,7 +43,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    * Set low level error code
    * @param subCode
    */
-  protected withErrorSubCode (subCode: string | number) {
+  withErrorSubCode (subCode: string | number) {
     this._subCode = subCode
     return this
   }
