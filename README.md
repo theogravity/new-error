@@ -167,7 +167,7 @@ const err = errRegistry.newBareError('INTERNAL_SERVER_ERROR', 'An internal serve
 
 ## Instance comparison / `instanceOf` usage
 
-Method: `ErrorRegistry:instanceOf(classInstance, highLevelErrorName)`
+Method: `ErrorRegistry#instanceOf(classInstance, highLevelErrorName)`
 
 Performs an `instanceof` operation against a custom error.
 
