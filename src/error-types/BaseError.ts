@@ -110,7 +110,6 @@ export class BaseError extends ExtendableError implements IBaseError {
   toJSONSafe (): SerializedErrorSafe {
     return {
       name: this.name,
-      message: this.message,
       code: this._code,
       statusCode: this._statusCode,
       meta: {

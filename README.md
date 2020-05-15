@@ -74,7 +74,9 @@ Certain fields will be omitted depending on the serialization method used. This 
 # Initialization
 
 - Define a set of high level errors
+  * Common high level error types could be 4xx/5xx HTTP codes
 - Define a set of low level errors
+  * Think of low level errors as a fine-grained sub-code/category to a high level error
 - Initialize the error registry with the errors
 
 ```typescript
@@ -251,6 +253,7 @@ Method: `BaseError#toJSONSafe()`
 
 Generates output that would be safe for client consumption.
 
+- Omits the message
 - Omits the stack trace
 - Omits `causedBy`
 - Omits any data defined via `BaseError#withMetadata()`
@@ -268,7 +271,6 @@ Produces:
 ```
 {
   name: 'InternalServerError',
-  message: 'There was a database failure, SQL err code %s',
   code: 'DATABASE_FAILURE',
   statusCode: 500,
   meta: { errorId: 'err-12345', requestId: 'req-12345' }
@@ -281,6 +283,7 @@ Method: `BaseError#toJSON()`
 
 Generates output that would be suitable for internal use.
 
+- Includes the message
 - Includes the stack trace
 - Includes `causedBy`
 - All data from `BaseError#withMetadata()` and `BaseError#withJSONMetadata()` is included

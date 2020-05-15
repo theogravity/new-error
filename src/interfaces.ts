@@ -100,10 +100,6 @@ export interface SerializedErrorSafe {
    */
   statusCode: any
   /**
-   * Message as defined in the Low Level Error
-   */
-  message: string
-  /**
    * User-defined metadata
    */
   meta: Record<string, any>
@@ -113,6 +109,10 @@ export interface SerializedErrorSafe {
  * Serialized error object
  */
 export interface SerializedError extends SerializedErrorSafe {
+  /**
+   * Message as defined in the Low Level Error
+   */
+  message: string
   /**
    * Stack trace
    */

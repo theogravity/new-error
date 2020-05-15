@@ -136,7 +136,6 @@ describe('BaseError', () => {
     err.causedBy(cause)
 
     expect(err.toJSONSafe()).toEqual({
-      message: 'test message',
       meta: {},
       name: 'BaseError'
     })
