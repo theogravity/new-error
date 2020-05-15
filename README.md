@@ -20,9 +20,8 @@ of errors to a client or for internal development / logs.
 # Table of Contents 
 
 <!-- TOC -->
-- [Sample output](#sample-output)
 - [Installation](#installation)
-- [Initialization](#initialization)
+- [Sample Usage](#sample-usage)
 - [Error Registry](#error-registry)
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
@@ -40,38 +39,11 @@ of errors to a client or for internal development / logs.
 
 <!-- TOC END -->
 
-# Sample output
-
-Certain fields will be omitted depending on the serialization method used. This is the output of the
-`toJSON()` method of a custom error.
-
-```
-{
-  name: 'InternalServerError',
-  message: 'There was a database failure, SQL err code %s',
-  code: 'DATABASE_FAILURE',
-  statusCode: 500,
-  meta: {},
-  causedBy: undefined,
-  stack: 'InternalServerError: There was a database failure, SQL err code %s\n' +
-    '    at ErrorRegistry.newError (src/ErrorRegistry.ts:128:12)\n' +
-    '    at Object.<anonymous> (src/test.ts:44:25)\n' +
-    '    at Module._compile (internal/modules/cjs/loader.js:1158:30)\n' +
-    '    at Module._compile (node_modules/source-map-support/source-map-support.js:541:25)\n' +
-    '    at Module.m._compile (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-4199054745399178.js:57:25)\n' +
-    '    at Module._extensions..js (internal/modules/cjs/loader.js:1178:10)\n' +
-    '    at require.extensions.<computed> (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-4199054745399178.js:59:14)\n' +
-    '    at Object.nodeDevHook [as .ts] (node_modules/ts-node-dev/lib/hook.js:61:7)\n' +
-    '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
-    '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
-}
-```
-
 # Installation
 
 `$ npm i error-bearer --save`
 
-# Initialization
+# Sample Usage
 
 - Define a set of high level errors
   * Common high level error types could be 4xx/5xx HTTP codes
@@ -128,6 +100,33 @@ const errRegistry = new ErrorRegistry(errors, errorCodes)
 // as Typescript autocomplete should show the available definitions, and type check will ensure
 // that the values are valid
 const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+console.log(err.toJson())
+```
+
+Produces:
+
+(You can omit fields you do not need - see usage section below.)
+
+```
+{
+  name: 'InternalServerError',
+  message: 'There was a database failure, SQL err code %s',
+  code: 'DATABASE_FAILURE',
+  statusCode: 500,
+  meta: {},
+  causedBy: undefined,
+  stack: 'InternalServerError: There was a database failure, SQL err code %s\n' +
+    '    at ErrorRegistry.newError (src/ErrorRegistry.ts:128:12)\n' +
+    '    at Object.<anonymous> (src/test.ts:44:25)\n' +
+    '    at Module._compile (internal/modules/cjs/loader.js:1158:30)\n' +
+    '    at Module._compile (node_modules/source-map-support/source-map-support.js:541:25)\n' +
+    '    at Module.m._compile (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-4199054745399178.js:57:25)\n' +
+    '    at Module._extensions..js (internal/modules/cjs/loader.js:1178:10)\n' +
+    '    at require.extensions.<computed> (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-4199054745399178.js:59:14)\n' +
+    '    at Object.nodeDevHook [as .ts] (node_modules/ts-node-dev/lib/hook.js:61:7)\n' +
+    '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
+    '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
+}
 ```
 
 # Error Registry
@@ -219,10 +218,25 @@ HTTP response.
 
 ```typescript
 err.withSafeMetadata({
-  errorId: 'err-12345'
+  errorId: 'err-12345',
+  moreData: 1234
 })
 // can be chained to append more data
 .withSafeMetadata({
+  requestId: 'req-12345'
+})
+```
+
+This can also be written as:
+
+```typescript
+err.withSafeMetadata({
+  errorId: 'err-12345',
+  moreData: 1234
+})
+
+// This will append requestId to the metadata
+err.withSafeMetadata({
   requestId: 'req-12345'
 })
 ```
