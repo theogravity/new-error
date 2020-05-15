@@ -15,6 +15,8 @@ of errors to a client or for internal development / logs.
 - Built-in auto-completion for Typescript when searching for registered error types.
 - 100% test coverage
 
+![Generating an error with autocompletion](/autocomplete.jpg?raw=true "Title")
+
 # Table of Contents 
 
 <!-- TOC -->
