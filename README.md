@@ -43,7 +43,7 @@ of errors to a client or for internal development / logs.
 
 `$ npm i error-bearer --save`
 
-# Sample Usage
+# Example Usage
 
 - Define a set of high level errors
   * Common high level error types could be 4xx/5xx HTTP codes
