@@ -27,16 +27,20 @@ of errors to a client or for internal development / logs.
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
     - [Create an error without a low-level error](#create-an-error-without-a-low-level-error)
-  - [Instance comparison / `instanceOf` usage](#instance-comparison--instanceof-usage)
-- [Error manipulation](#error-manipulation)
+  - [`instanceOf` / comparisons](#instanceof--comparisons)
+    - [Comparing a custom error](#comparing-a-custom-error)
+    - [Native `instanceof`](#native-instanceof)
+- [Error API](#error-api)
+  - [Getters](#getters)
   - [Attaching errors](#attaching-errors)
   - [Format messages](#format-messages)
   - [Adding metadata](#adding-metadata)
     - [Safe metadata](#safe-metadata)
     - [Internal metadata](#internal-metadata)
-- [Serializing errors](#serializing-errors)
-  - [Safe serialization](#safe-serialization)
-  - [Internal serialization](#internal-serialization)
+  - [Serializing errors](#serializing-errors)
+    - [Safe serialization](#safe-serialization)
+    - [Internal serialization](#internal-serialization)
+- [Example Express Error Handling](#example-express-error-handling)
 
 <!-- TOC END -->
 
@@ -108,7 +112,7 @@ const errRegistry = new ErrorRegistry(errors, errorCodes)
 // Create an instance of InternalServerError
 // Typescript autocomplete should show the available definitions as you type the error names
 // and type check will ensure that the values are valid
-const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE').formatMessage('SQL_1234')
 console.log(err.toJSON())
 ```
 
@@ -120,7 +124,7 @@ Produces:
 {
   name: 'InternalServerError',
   code: 'ERR_INT_500',
-  message: 'There was a database failure, SQL err code %s',
+  message: 'There was a database failure, SQL err code SQL_1234',
   type: 'DATABASE_FAILURE',
   subCode: 'DB_0001',
   statusCode: 500,
@@ -173,7 +177,9 @@ error message.
 const err = errRegistry.newBareError('INTERNAL_SERVER_ERROR', 'An internal server error has occured.')
 ```
 
-## Instance comparison / `instanceOf` usage
+## `instanceOf` / comparisons
+
+### Comparing a custom error
 
 Method: `ErrorRegistry#instanceOf(classInstance, highLevelErrorName)`
 
@@ -188,9 +194,34 @@ if (errRegistry.instanceOf(err, 'INTERNAL_SERVER_ERROR')) {
 }
 ```
 
-# Error manipulation
+### Native `instanceof`
+
+You can also check if the error is custom-built using this check:
+
+```typescript
+import { BaseError } from 'new-error'
+
+function handleError(err) {
+  if (err instanceof BaseError) {
+    // err is a custom error
+  }
+}
+```
+
+# Error API
 
 Except for the serialization methods, all methods are chainable.
+
+Generated errors extend the `BaseError` class, which supplies the manipulation methods.
+
+## Getters
+
+- `BaseError#getCode()`
+- `BaseError#getSubCode()`
+- `BaseError#getStatusCode()`
+- `BaseError#getCausedBy()`
+- `BaseError#getMetadata()`
+- `BaseError#getSafeMetadata()`
 
 ## Attaching errors
 
@@ -268,9 +299,9 @@ err.withMetadata({
 })
 ```
 
-# Serializing errors
+## Serializing errors
 
-## Safe serialization
+### Safe serialization
 
 Method: `BaseError#toJSONSafe(fieldsToOmit = [])`
 
@@ -304,7 +335,7 @@ Produces:
 }
 ```
 
-## Internal serialization
+### Internal serialization
 
 Method: `BaseError#toJSON(fieldsToOmit = [])`
 
@@ -351,4 +382,72 @@ Produces:
     '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
     '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
 }
+```
+
+# Example Express Error Handling
+
+```typescript
+import express from 'express'
+import { ErrorRegistry, BaseError } from 'new-error'
+const app = express()
+const port = 3000
+
+const errors = {
+  INTERNAL_SERVER_ERROR: {
+    className: 'InternalServerError',
+    code: 'ERR_INT_500',
+    statusCode: 500
+  }
+}
+
+const errorCodes = {
+  DATABASE_FAILURE: {
+    message: 'There was a database failure.',
+    subCode: 'DB_0001',
+    statusCode: 500
+  }
+}
+
+const errRegistry = new ErrorRegistry(errors, errorCodes)
+
+// middleware definition
+app.get('/', async (req, res, next) => {
+  try {
+    // simulate a failure
+    throw new Error('SQL issue')
+  } catch (e) {
+    const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+    err.causedBy(err)
+    // errors must be passed to next()
+    // to be caught when using an async middleware
+    return next(err)
+  }
+})
+
+// catch errors
+app.use((err, req, res, next) => {
+  // error was sent from middleware
+  if (err) {
+    // check if the error is a generated one
+    if (err instanceof BaseError) {
+      // get the status code, if the status code is not defined, default to 500
+      res.status(err.getStatusCode() ?? 500)
+      // spit out the error to the client
+      return res.json({
+        err: err.toJSONSafe()
+      })
+    }
+  }
+
+  // no error, proceed
+  next()
+})
+
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+```
+
+If you visit `http://localhost:3000`, you'll get a 500 status code, and the following response:
+
+```
+{"err": {"code":"ERR_INT_500","subCode":"DB_0001","statusCode":500,"meta":{}}}
 ```

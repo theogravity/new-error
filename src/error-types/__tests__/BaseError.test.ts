@@ -37,6 +37,11 @@ describe('BaseError', () => {
         test2: 'value2'
       })
 
+    expect(err.getMetadata()).toEqual({
+      test: 'value',
+      test2: 'value2'
+    })
+
     expect(err.toJSON()).toEqual(
       expect.objectContaining({
         meta: {
@@ -62,6 +67,11 @@ describe('BaseError', () => {
       .withSafeMetadata({
         test3: 123
       })
+
+    expect(err.getSafeMetadata()).toEqual({
+      test2: 'value',
+      test3: 123
+    })
 
     expect(err.toJSON()).toEqual(
       expect.objectContaining({
@@ -126,6 +136,8 @@ describe('BaseError', () => {
         causedBy: cause
       })
     )
+
+    expect(err.getCausedBy()).toEqual(cause)
 
     expect(obj.stack).toBeDefined()
   })

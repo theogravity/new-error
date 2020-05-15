@@ -25,6 +25,9 @@ describe('BaseRegistryError', () => {
       })
     )
 
+    expect(err.getCode()).toBe('TEST_ERR')
+    expect(err.getSubCode()).toBe('SUB_CODE_ERR')
+    expect(err.getStatusCode()).toBe(400)
     expect(err.stack).toBeDefined()
   })
 

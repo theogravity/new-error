@@ -7,8 +7,8 @@ import { IBaseError, SerializedError, SerializedErrorSafe } from '../interfaces'
  */
 export class BaseError extends ExtendableError implements IBaseError {
   protected _type: string
-  protected _code: string
-  protected _subCode: string
+  protected _code: string | number
+  protected _subCode: string | number
   protected _statusCode: any
   protected _causedBy: any
   protected _safeMetadata: Record<string, any>
@@ -34,7 +34,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    * Set high level error code
    * @param code
    */
-  protected withErrorCode (code: string) {
+  protected withErrorCode (code: string | number) {
     this._code = code
     return this
   }
@@ -43,9 +43,51 @@ export class BaseError extends ExtendableError implements IBaseError {
    * Set low level error code
    * @param subCode
    */
-  protected withErrorSubCode (subCode: string) {
+  protected withErrorSubCode (subCode: string | number) {
     this._subCode = subCode
     return this
+  }
+
+  /**
+   * Returns the status code.
+   */
+  getStatusCode () {
+    return this._statusCode
+  }
+
+  /**
+   * Returns the high level error code
+   */
+  getCode () {
+    return this._code
+  }
+
+  /**
+   * Returns the low level error code
+   */
+  getSubCode () {
+    return this._subCode
+  }
+
+  /**
+   * Returns the attached error
+   */
+  getCausedBy (): any {
+    return this._causedBy
+  }
+
+  /**
+   * Returns metadata set by withMetadata()
+   */
+  getMetadata (): Record<string, any> {
+    return this._metadata
+  }
+
+  /**
+   * Returns metadata set by withSafeMetadata()
+   */
+  getSafeMetadata (): Record<string, any> {
+    return this._safeMetadata
   }
 
   /**

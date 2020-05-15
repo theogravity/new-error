@@ -11,13 +11,13 @@ export interface HighLevelErrorDef {
    * A user-friendly code to show to a client that represents the high
    * level error.
    */
-  code: any
+  code: string | number
 
   /**
    * Protocol-specific status code, such as an HTTP status code. Used as the
    * default if a Low Level Error status code is not specified or defined.
    */
-  statusCode?: any
+  statusCode?: string | number
 }
 
 /**
@@ -35,12 +35,12 @@ export interface LowLevelErrorDef {
    * A user-friendly code to show to a client that represents the low
    * level error.
    */
-  subCode?: any
+  subCode?: string | number
 
   /**
    * Protocol-specific status code, such as an HTTP status code.
    */
-  statusCode?: any
+  statusCode?: string | number
 }
 
 /**
@@ -54,6 +54,30 @@ export interface LowLevelErrorInternal extends LowLevelErrorDef {
 }
 
 export interface IBaseError {
+  /**
+   * Returns the high level error code
+   */
+  getCode(): string | number
+  /**
+   * Returns the low level error code
+   */
+  getSubCode(): string | number
+  /**
+   * Returns the status code.
+   */
+  getStatusCode(): string | number
+  /**
+   * Returns the attached error
+   */
+  getCausedBy(): any
+  /**
+   * Returns metadata set by withMetadata()
+   */
+  getMetadata(): Record<string, any>
+  /**
+   * Returns metadata set by withSafeMetadata()
+   */
+  getSafeMetadata(): Record<string, any>
   /**
    * Attach the original error that was thrown, if available
    * @param {Error} error
@@ -109,11 +133,11 @@ export interface SerializedErrorSafe {
   /**
    * The low level code to show to a client.
    */
-  subCode?: any
+  subCode?: string | number
   /**
    * Protocol-specific status code, such as an HTTP status code.
    */
-  statusCode?: any
+  statusCode?: string | number
   /**
    * User-defined metadata
    */
