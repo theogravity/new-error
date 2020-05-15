@@ -23,6 +23,9 @@ of errors to a client or for internal development / logs.
 <!-- TOC -->
 - [Installation](#installation)
 - [Example Usage](#example-usage)
+  - [With the error registry](#with-the-error-registry)
+  - [Class-based with low level errors without a registry](#class-based-with-low-level-errors-without-a-registry)
+  - [Bare-bones class-based error](#bare-bones-class-based-error)
 - [Error Registry](#error-registry)
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
@@ -49,6 +52,8 @@ of errors to a client or for internal development / logs.
 `$ npm i new-error --save`
 
 # Example Usage
+
+## With the error registry
 
 - Define a set of high level errors
   * Common high level error types could be 4xx/5xx HTTP codes
@@ -141,6 +146,55 @@ Produces:
     '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
     '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
 }
+```
+
+## Class-based with low level errors without a registry
+
+You can create concrete error classes by extending the `BaseRegistryError` class, which
+extends the `BaseError` class.
+
+The registry example can be also written as:
+
+```typescript
+import { BaseRegistryError, LowLevelError } from 'new-error'
+
+class InternalServerError extends BaseRegistryError {
+  constructor (errDef: LowLevelError) {
+    super({
+      code: 'ERR_INT_500',
+      statusCode: 500
+    }, errDef)
+  }
+}
+
+const err = new InternalServerError({
+  type: 'DATABASE_FAILURE',
+  message: 'There was a database failure, SQL err code %s',
+  subCode: 'DB_0001',
+  statusCode: 500
+})
+
+console.log(err.formatMessage('SQL_1234').toJSON())
+```
+
+## Bare-bones class-based error
+
+If you want a native-style `Error`, you can use `BaseError`.
+
+The registry example can be written as:
+
+```typescript
+import { BaseError } from 'new-error'
+
+class InternalServerError extends BaseError {}
+
+const err = new InternalServerError('There was a database failure, SQL err code %s')
+  .withErrorType('DATABASE_FAILURE')
+  .withErrorCode('ERR_INT_500')
+  .withErrorSubCode('DB_0001')
+  .withStatusCode(500)
+
+console.log(err.formatMessage('SQL_1234').toJSON())
 ```
 
 # Error Registry

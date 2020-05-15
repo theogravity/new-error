@@ -5,7 +5,6 @@ describe('BaseRegistryError', () => {
   it('should create an instance', () => {
     const err = new BaseRegistryError(
       {
-        className: 'TestError',
         code: 'TEST_ERR',
         statusCode: 300
       },
@@ -34,7 +33,6 @@ describe('BaseRegistryError', () => {
   it('should use the default high level error code', () => {
     const err = new BaseRegistryError(
       {
-        className: 'TestError',
         code: 'TEST_ERR',
         statusCode: 300
       },
@@ -55,7 +53,6 @@ describe('BaseRegistryError', () => {
   it('should use the low level error code', () => {
     const err = new BaseRegistryError(
       {
-        className: 'TestError',
         code: 'TEST_ERR'
       },
       {
