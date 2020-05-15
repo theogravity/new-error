@@ -1,5 +1,10 @@
 # error-bearer
 
+[![NPM version](http://img.shields.io/npm/v/objection-generator.svg?style=flat-square)](https://www.npmjs.com/package/objection-generator)
+[![CircleCI](https://circleci.com/gh/theogravity/objection-generator.svg?style=svg)](https://circleci.com/gh/theogravity/objection-generator) 
+![built with typescript](https://camo.githubusercontent.com/92e9f7b1209bab9e3e9cd8cdf62f072a624da461/68747470733a2f2f666c61742e62616467656e2e6e65742f62616467652f4275696c74253230576974682f547970655363726970742f626c7565) 
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
 A production-grade error creation library designed for Typescript. 
 
 - All created errors extend `Error` with additional methods added on.
@@ -8,6 +13,8 @@ A production-grade error creation library designed for Typescript.
 - Selectively expose error metadata based on internal or external use.
 - Built-in auto-completion for Typescript when searching for registered error types.
 - 100% test coverage
+
+# Table of Contents 
 
 <!-- TOC -->
 - [Sample output](#sample-output)
@@ -111,11 +118,13 @@ const errorCodes = {
 // reference throughout your application
 const errRegistry = new ErrorRegistry(errors, errorCodes)
 
+// -- create an error --
 // Typing in the name 'IN' should prompt autocompletion options for the first parameter in Typescript
 // and same for the second parameter when typing 'DA'
 // this should spare you from having to import constants as Typescript will perform proper
 // typechecking on the valid values of those parameters
-console.log(errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE').toJSON())
+const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+console.log(err.toJSON())
 ```
 
 ## Creating errors
@@ -142,7 +151,7 @@ error message.
 const err = errRegistry.newBareError('INTERNAL_SERVER_ERROR', 'An internal server error has occured.')
 ```
 
-## Attaching errors
+## Attaching errors: `BaseError#causedBy()`
 
 You can attach another error to the error with `BaseError#causedBy()`.
 
@@ -151,7 +160,7 @@ const externalError = new Error('Some thrown error')
 err.causedBy(externalError)
 ```
 
-## Fomatting messages
+## Fomatting messages: `BaseError#formatMessage()`
 
 You can format a message with `BaseError#formatMessage()`.
 
@@ -199,7 +208,7 @@ err.withMetadata({
 
 ## Serializing errors
 
-### Safe serialization
+### Safe serialization: `BaseError#toJSONSafe()`
 
 Use `BaseError#toJSONSafe()` to generate output that would be safe for client consumption.
 
@@ -227,7 +236,7 @@ Produces:
 }
 ```
 
-### Internal serialization
+### Internal serialization: `BaseError#toJSON()`
 
 Use `BaseError#toJSON()` to generate output that would be suitable for internal use.
 
