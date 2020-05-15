@@ -295,7 +295,7 @@ err.withSafeMetadata({
 }).withMetadata({
   email: 'test@test.com'
 })
-//.toJSON(['code', 'statusCode]) removes the code and statusCode field from output
+//.toJSON(['code', 'statusCode']) removes the code and statusCode field from output
 .toJSON()
 ```
 
