@@ -87,9 +87,10 @@ export class BaseError extends ExtendableError implements IBaseError {
    * contained is for internal purposes only as it contains the stack trace.
    * Use / implement toJsonSafe() to return data that is safe for client
    * consumption.
+   * @param {string[]} [fieldsToOmit] An array of root properties to omit from the output
    */
-  toJSON (): SerializedError {
-    return {
+  toJSON (fieldsToOmit: string[] = []): Partial<SerializedError> {
+    const data = {
       name: this.name,
       message: this.message,
       code: this._code,
@@ -101,14 +102,21 @@ export class BaseError extends ExtendableError implements IBaseError {
       causedBy: this._causedBy,
       stack: this.stack
     }
+
+    fieldsToOmit.forEach(item => {
+      delete data[item]
+    })
+
+    return data
   }
 
   /**
    * Returns a safe json representation of the error (error stack / causedBy is removed).
    * This should be used for display to a user / pass to a client.
+   * @param {string[]} [fieldsToOmit] An array of root properties to omit from the output
    */
-  toJSONSafe (): SerializedErrorSafe {
-    return {
+  toJSONSafe (fieldsToOmit: string[] = []): Partial<SerializedErrorSafe> {
+    const data = {
       name: this.name,
       code: this._code,
       statusCode: this._statusCode,
@@ -116,5 +124,11 @@ export class BaseError extends ExtendableError implements IBaseError {
         ...this._safeMetadata
       }
     }
+
+    fieldsToOmit.forEach(item => {
+      delete data[item]
+    })
+
+    return data
   }
 }

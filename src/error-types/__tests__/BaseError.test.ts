@@ -130,6 +130,16 @@ describe('BaseError', () => {
     expect(obj.stack).toBeDefined()
   })
 
+  it('should omit fields in toJSON()', () => {
+    const cause = new Error('test caused by')
+    const err = new BaseError('test message')
+    err.causedBy(cause)
+
+    const obj = err.toJSON(['causedBy'])
+
+    expect(obj.causedBy).not.toBeDefined()
+  })
+
   it('should not show stack trace or causedBy when using toJSONSafe()', () => {
     const cause = new Error('test caused by')
     const err = new BaseError('test message')
@@ -138,6 +148,17 @@ describe('BaseError', () => {
     expect(err.toJSONSafe()).toEqual({
       meta: {},
       name: 'BaseError'
+    })
+  })
+
+  it('should omit fields in toJSONSafe()', () => {
+    const cause = new Error('test caused by')
+    const err = new BaseError('test message')
+    err.causedBy(cause)
+
+    expect(err.toJSONSafe(['name'])).toEqual({
+      meta: {},
+      name: undefined
     })
   })
 })

@@ -74,13 +74,15 @@ export interface IBaseError {
    * contained is for internal purposes only as it contains the stack trace.
    * Use / implement toJsonSafe() to return data that is safe for client
    * consumption.
+   * @param {string[]} [fieldsToOmit] An array of root properties to omit from the output
    */
-  toJSON(): SerializedError
+  toJSON(fieldsToOmit: string[]): Partial<SerializedError>
   /**
    * Returns a safe json representation of the error (error stack / causedBy is removed).
    * This should be used for display to a user / pass to a client.
+   * @param {string[]} [fieldsToOmit] An array of root properties to omit from the output
    */
-  toJSONSafe(): SerializedErrorSafe
+  toJSONSafe(fieldsToOmit: string[]): Partial<SerializedErrorSafe>
 }
 
 /**

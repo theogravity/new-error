@@ -249,7 +249,7 @@ err.withMetadata({
 
 ## Safe serialization
 
-Method: `BaseError#toJSONSafe()`
+Method: `BaseError#toJSONSafe(fieldsToOmit = [])`
 
 Generates output that would be safe for client consumption.
 
@@ -263,6 +263,7 @@ err.withSafeMetadata({
   errorId: 'err-12345',
   requestId: 'req-12345'
 })
+//.toJSONSafe(['code']) removes the code field from output
 .toJSONSafe()
 ```
 
@@ -279,7 +280,7 @@ Produces:
 
 ## Internal serialization
 
-Method: `BaseError#toJSON()`
+Method: `BaseError#toJSON(fieldsToOmit = [])`
 
 Generates output that would be suitable for internal use.
 
@@ -294,6 +295,7 @@ err.withSafeMetadata({
 }).withMetadata({
   email: 'test@test.com'
 })
+//.toJSON(['code', 'statusCode]) removes the code and statusCode field from output
 .toJSON()
 ```
 
