@@ -21,7 +21,7 @@ of errors to a client or for internal development / logs.
 
 <!-- TOC -->
 - [Installation](#installation)
-- [Sample Usage](#sample-usage)
+- [Example Usage](#example-usage)
 - [Error Registry](#error-registry)
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
