@@ -5,16 +5,19 @@ import { BaseError } from '..'
 
 const errors = {
   INTERNAL_SERVER_ERROR: {
-    className: 'InternalServerError'
+    className: 'InternalServerError',
+    code: 'INT_ERR'
   },
   AUTH_ERROR: {
-    className: 'AuthError'
+    className: 'AuthError',
+    code: 'AUTH_ERR'
   }
 }
 
 const errorCodes = {
   DATABASE_FAILURE: {
     statusCode: 500,
+    subCode: 'DB_ERR',
     message: 'There is an issue with the database'
   }
 }

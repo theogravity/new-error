@@ -1,6 +1,6 @@
 {
-  "name": "error-bearer",
-  "version": "1.0.0",
+  "name": "new-error",
+  "version": "1.0.2",
   "description": "A production-grade error creation and serialization library designed for Typescript",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -30,7 +30,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/theogravity/error-bearer.git"
+    "url": "git+https://github.com/theogravity/new-error.git"
   },
   "author": "Theo Gravity <theo@suteki.nu>",
   "license": "MIT",
@@ -56,9 +56,9 @@
     "logging"
   ],
   "bugs": {
-    "url": "https://github.com/theogravity/error-bearer/issues"
+    "url": "https://github.com/theogravity/new-error/issues"
   },
-  "homepage": "https://github.com/theogravity/error-bearer#readme",
+  "homepage": "https://github.com/theogravity/new-error#readme",
   "dependencies": {
     "es6-error": "^4.1.1",
     "sprintf-js": "^1.1.2"

@@ -6,16 +6,20 @@ describe('BaseRegistryError', () => {
     const err = new BaseRegistryError(
       {
         className: 'TestError',
+        code: 'TEST_ERR',
         statusCode: 300
       },
       {
         statusCode: 400,
+        subCode: 'SUB_CODE_ERR',
         message: 'This is a test error'
       }
     )
 
     expect(err.toJSON()).toEqual(
       expect.objectContaining({
+        code: 'TEST_ERR',
+        subCode: 'SUB_CODE_ERR',
         statusCode: 400,
         message: 'This is a test error'
       })
@@ -28,6 +32,7 @@ describe('BaseRegistryError', () => {
     const err = new BaseRegistryError(
       {
         className: 'TestError',
+        code: 'TEST_ERR',
         statusCode: 300
       },
       {
@@ -47,7 +52,8 @@ describe('BaseRegistryError', () => {
   it('should use the low level error code', () => {
     const err = new BaseRegistryError(
       {
-        className: 'TestError'
+        className: 'TestError',
+        code: 'TEST_ERR'
       },
       {
         message: 'This is a test error',

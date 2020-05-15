@@ -6,7 +6,9 @@ import { IBaseError, SerializedError, SerializedErrorSafe } from '../interfaces'
  * Improved error class.
  */
 export class BaseError extends ExtendableError implements IBaseError {
+  protected _type: string
   protected _code: string
+  protected _subCode: string
   protected _statusCode: any
   protected _causedBy: any
   protected _safeMetadata: Record<string, any>
@@ -20,11 +22,29 @@ export class BaseError extends ExtendableError implements IBaseError {
   }
 
   /**
-   * Set low level error code
+   * Set the error type
+   * @param type
+   */
+  protected withErrorType (type: string) {
+    this._type = type
+    return this
+  }
+
+  /**
+   * Set high level error code
    * @param code
    */
   protected withErrorCode (code: string) {
     this._code = code
+    return this
+  }
+
+  /**
+   * Set low level error code
+   * @param subCode
+   */
+  protected withErrorSubCode (subCode: string) {
+    this._subCode = subCode
     return this
   }
 
@@ -92,8 +112,10 @@ export class BaseError extends ExtendableError implements IBaseError {
   toJSON (fieldsToOmit: string[] = []): Partial<SerializedError> {
     const data = {
       name: this.name,
-      message: this.message,
       code: this._code,
+      message: this.message,
+      type: this._type,
+      subCode: this._subCode,
       statusCode: this._statusCode,
       meta: {
         ...this._metadata,
@@ -102,6 +124,13 @@ export class BaseError extends ExtendableError implements IBaseError {
       causedBy: this._causedBy,
       stack: this.stack
     }
+
+    Object.keys(data).forEach(item => {
+      // remove undefined items
+      if (data[item] === undefined) {
+        delete data[item]
+      }
+    })
 
     fieldsToOmit.forEach(item => {
       delete data[item]
@@ -117,13 +146,20 @@ export class BaseError extends ExtendableError implements IBaseError {
    */
   toJSONSafe (fieldsToOmit: string[] = []): Partial<SerializedErrorSafe> {
     const data = {
-      name: this.name,
       code: this._code,
+      subCode: this._subCode,
       statusCode: this._statusCode,
       meta: {
         ...this._safeMetadata
       }
     }
+
+    Object.keys(data).forEach(item => {
+      // remove undefined items
+      if (data[item] === undefined) {
+        delete data[item]
+      }
+    })
 
     fieldsToOmit.forEach(item => {
       delete data[item]

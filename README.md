@@ -1,7 +1,7 @@
-# error-bearer
+# new-error
 
-[![NPM version](http://img.shields.io/npm/v/objection-generator.svg?style=flat-square)](https://www.npmjs.com/package/objection-generator)
-[![CircleCI](https://circleci.com/gh/theogravity/objection-generator.svg?style=svg)](https://circleci.com/gh/theogravity/objection-generator) 
+[![NPM version](http://img.shields.io/npm/v/new-error.svg?style=flat-square)](https://www.npmjs.com/package/new-error)
+[![CircleCI](https://circleci.com/gh/theogravity/new-error.svg?style=svg)](https://circleci.com/gh/theogravity/new-error) 
 ![built with typescript](https://camo.githubusercontent.com/92e9f7b1209bab9e3e9cd8cdf62f072a624da461/68747470733a2f2f666c61742e62616467656e2e6e65742f62616467652f4275696c74253230576974682f547970655363726970742f626c7565) 
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
@@ -9,6 +9,7 @@ A production-grade error creation library designed for Typescript. Useful for di
 of errors to a client or for internal development / logs.
 
 - All created errors extend `Error` with additional methods added on.
+- Show errors that are safe for client / user-consumption vs internal only.
 - Create your own custom error types with custom messaging, status codes and metadata.
 - Attach an error to your error object to get the full error chain.
 - Selectively expose error metadata based on internal or external use.
@@ -41,7 +42,7 @@ of errors to a client or for internal development / logs.
 
 # Installation
 
-`$ npm i error-bearer --save`
+`$ npm i new-error --save`
 
 # Example Usage
 
@@ -52,7 +53,8 @@ of errors to a client or for internal development / logs.
 - Initialize the error registry with the errors
 
 ```typescript
-import { ErrorRegistry } from './ErrorRegistry'
+// This is a working example
+import { ErrorRegistry } from 'new-error'
 
 // Define high level errors
 // Do *not* assign a Typescript type to the object
@@ -63,6 +65,10 @@ const errors = {
     * The class name of the generated error
     */
     className: 'InternalServerError',
+    /**
+     * A user-friendly code to show to a client.
+     */
+    code: 'ERR_INT_500',
    /**
     * (optional) Protocol-specific status code, such as an HTTP status code. Used as the
     * default if a Low Level Error status code is not specified or defined.
@@ -75,6 +81,7 @@ const errors = {
 // Do *not* assign a Typescript type to the object
 // or IDE autocompletion will not work!
 const errorCodes = {
+  // 'type' of error
   DATABASE_FAILURE: {
     /**
      * Full description of the error. sprintf() flags can be applied
@@ -82,7 +89,10 @@ const errorCodes = {
      * @see https://www.npmjs.com/package/sprintf-js
      */
     message: 'There was a database failure, SQL err code %s',
-  
+    /**
+     * (optional) A user-friendly code to show to a client.
+     */
+    subCode: 'DB_0001',
     /**
      * (optional) Protocol-specific status code, such as an HTTP status code.
      */
@@ -91,16 +101,15 @@ const errorCodes = {
 }
 
 // Create the error registry by registering your errors and codes
-// you will generally want to memoize this as you will be using the
+// you will want to memoize this as you will be using the
 // reference throughout your application
 const errRegistry = new ErrorRegistry(errors, errorCodes)
 
 // Create an instance of InternalServerError
-// No need to do errRegistry.newError(errors.INTERNAL_SERVER_ERROR, errorCodes.DATABASE_FAILURE)
-// as Typescript autocomplete should show the available definitions, and type check will ensure
-// that the values are valid
+// Typescript autocomplete should show the available definitions as you type the error names
+// and type check will ensure that the values are valid
 const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
-console.log(err.toJson())
+console.log(err.toJSON())
 ```
 
 Produces:
@@ -110,20 +119,21 @@ Produces:
 ```
 {
   name: 'InternalServerError',
+  code: 'ERR_INT_500',
   message: 'There was a database failure, SQL err code %s',
-  code: 'DATABASE_FAILURE',
+  type: 'DATABASE_FAILURE',
+  subCode: 'DB_0001',
   statusCode: 500,
   meta: {},
-  causedBy: undefined,
   stack: 'InternalServerError: There was a database failure, SQL err code %s\n' +
-    '    at ErrorRegistry.newError (src/ErrorRegistry.ts:128:12)\n' +
-    '    at Object.<anonymous> (src/test.ts:44:25)\n' +
+    '    at ErrorRegistry.newError (new-error/src/ErrorRegistry.ts:128:12)\n' +
+    '    at Object.<anonymous> (new-error/src/test.ts:55:25)\n' +
     '    at Module._compile (internal/modules/cjs/loader.js:1158:30)\n' +
-    '    at Module._compile (node_modules/source-map-support/source-map-support.js:541:25)\n' +
-    '    at Module.m._compile (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-4199054745399178.js:57:25)\n' +
+    '    at Module._compile (new-error/node_modules/source-map-support/source-map-support.js:541:25)\n' +
+    '    at Module.m._compile (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-20649714243977457.js:57:25)\n' +
     '    at Module._extensions..js (internal/modules/cjs/loader.js:1178:10)\n' +
-    '    at require.extensions.<computed> (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-4199054745399178.js:59:14)\n' +
-    '    at Object.nodeDevHook [as .ts] (node_modules/ts-node-dev/lib/hook.js:61:7)\n' +
+    '    at require.extensions.<computed> (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-20649714243977457.js:59:14)\n' +
+    '    at Object.nodeDevHook [as .ts] (new-error/node_modules/ts-node-dev/lib/hook.js:61:7)\n' +
     '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
     '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
 }
@@ -266,9 +276,11 @@ Method: `BaseError#toJSONSafe(fieldsToOmit = [])`
 
 Generates output that would be safe for client consumption.
 
-- Omits the message
-- Omits the stack trace
+- Omits `name`
+- Omits `message`
 - Omits `causedBy`
+- Omits `type`
+- Omits the stack trace
 - Omits any data defined via `BaseError#withMetadata()`
 
 ```typescript
@@ -276,6 +288,7 @@ err.withSafeMetadata({
   errorId: 'err-12345',
   requestId: 'req-12345'
 })
+// you can remove additional fields by specifying property names in an array
 //.toJSONSafe(['code']) removes the code field from output
 .toJSONSafe()
 ```
@@ -284,8 +297,8 @@ Produces:
 
 ```
 {
-  name: 'InternalServerError',
-  code: 'DATABASE_FAILURE',
+  code: 'ERR_INT_500',
+  subCode: 'DB_0001',
   statusCode: 500,
   meta: { errorId: 'err-12345', requestId: 'req-12345' }
 }
@@ -297,9 +310,11 @@ Method: `BaseError#toJSON(fieldsToOmit = [])`
 
 Generates output that would be suitable for internal use.
 
-- Includes the message
-- Includes the stack trace
+- Includes `name`
+- Includes `type`
+- Includes `message`
 - Includes `causedBy`
+- Includes the stack trace
 - All data from `BaseError#withMetadata()` and `BaseError#withJSONMetadata()` is included
 
 ```typescript
@@ -308,6 +323,7 @@ err.withSafeMetadata({
 }).withMetadata({
   email: 'test@test.com'
 })
+// you can remove additional fields by specifying property names in an array
 //.toJSON(['code', 'statusCode']) removes the code and statusCode field from output
 .toJSON()
 ```
@@ -317,20 +333,21 @@ Produces:
 ```
 {
   name: 'InternalServerError',
+  code: 'ERR_INT_500',
   message: 'There was a database failure, SQL err code %s',
-  code: 'DATABASE_FAILURE',
+  type: 'DATABASE_FAILURE',
+  subCode: 'DB_0001',
   statusCode: 500,
-  meta: { email: 'test@test.com', errorId: 'err-12345' },
-  causedBy: undefined,
+  meta: { errorId: 'err-12345', requestId: 'req-12345' },
   stack: 'InternalServerError: There was a database failure, SQL err code %s\n' +
-    '    at ErrorRegistry.newError (src/ErrorRegistry.ts:128:12)\n' +
-    '    at Object.<anonymous> (src/test.ts:44:25)\n' +
+    '    at ErrorRegistry.newError (new-error/src/ErrorRegistry.ts:128:12)\n' +
+    '    at Object.<anonymous> (new-error/src/test.ts:55:25)\n' +
     '    at Module._compile (internal/modules/cjs/loader.js:1158:30)\n' +
-    '    at Module._compile (node_modules/source-map-support/source-map-support.js:541:25)\n' +
-    '    at Module.m._compile (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-6915061366025617.js:57:25)\n' +
+    '    at Module._compile (new-error/node_modules/source-map-support/source-map-support.js:541:25)\n' +
+    '    at Module.m._compile (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-17091160954051898.js:57:25)\n' +
     '    at Module._extensions..js (internal/modules/cjs/loader.js:1178:10)\n' +
-    '    at require.extensions.<computed> (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-6915061366025617.js:59:14)\n' +
-    '    at Object.nodeDevHook [as .ts] (node_modules/ts-node-dev/lib/hook.js:61:7)\n' +
+    '    at require.extensions.<computed> (/private/var/folders/mx/b54hc2lj3fbfsndkv4xmz8d80000gn/T/ts-node-dev-hook-17091160954051898.js:59:14)\n' +
+    '    at Object.nodeDevHook [as .ts] (new-error/node_modules/ts-node-dev/lib/hook.js:61:7)\n' +
     '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
     '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
 }

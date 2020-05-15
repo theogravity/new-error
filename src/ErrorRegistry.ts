@@ -37,10 +37,10 @@ export class ErrorRegistry<
     this.highLevelErrorClasses = {} as any
 
     // populate the lowLevelErrors dictionary
-    Object.keys(lowLvErrors).forEach(code => {
-      const errCode = lowLvErrors[code] as LowLevelErrorInternal
-      errCode.code = code
-      this.lowLevelErrors[code] = errCode
+    Object.keys(lowLvErrors).forEach(type => {
+      const errCode = lowLvErrors[type] as LowLevelErrorInternal
+      errCode.type = type
+      this.lowLevelErrors[type] = errCode
     })
   }
 
