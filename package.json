@@ -1,7 +1,7 @@
 {
   "name": "error-bearer",
   "version": "1.0.0",
-  "description": "A production-grade error creation library designed for Typescript",
+  "description": "A production-grade error creation and serialization library designed for Typescript",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -38,6 +38,7 @@
     "error",
     "throw",
     "custom",
+    "generate",
     "new",
     "extends",
     "factory",
