@@ -123,11 +123,9 @@ const errorCodes = {
 // reference throughout your application
 const errRegistry = new ErrorRegistry(errors, errorCodes)
 
-// -- create an error --
-// Typing in the name 'IN' should prompt autocompletion options for the first parameter in Typescript
-// and same for the second parameter when typing 'DA'
-// this should spare you from having to import constants as Typescript will perform proper
-// typechecking on the valid values of those parameters
+// Create an instance of InternalServerError
+// No need to do errRegistry.newError(errorCodes.DATABASE_FAILURE, ..)
+// as Typescript autocomplete should show the available definitions
 const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
 ```
 
