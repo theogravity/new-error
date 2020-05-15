@@ -124,8 +124,9 @@ const errorCodes = {
 const errRegistry = new ErrorRegistry(errors, errorCodes)
 
 // Create an instance of InternalServerError
-// No need to do errRegistry.newError(errorCodes.DATABASE_FAILURE, ..)
-// as Typescript autocomplete should show the available definitions
+// No need to do errRegistry.newError(errors.INTERNAL_SERVER_ERROR, errorCodes.DATABASE_FAILURE)
+// as Typescript autocomplete should show the available definitions, and type check will ensure
+// that the values are valid
 const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
 ```
 
