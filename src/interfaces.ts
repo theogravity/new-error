@@ -8,6 +8,12 @@ export interface HighLevelErrorDef {
   className: string
 
   /**
+   * A user-friendly code to show to a client that represents the high
+   * level error.
+   */
+  code: any
+
+  /**
    * Protocol-specific status code, such as an HTTP status code. Used as the
    * default if a Low Level Error status code is not specified or defined.
    */
@@ -26,6 +32,12 @@ export interface LowLevelErrorDef {
   message: string
 
   /**
+   * A user-friendly code to show to a client that represents the low
+   * level error.
+   */
+  subCode?: any
+
+  /**
    * Protocol-specific status code, such as an HTTP status code.
    */
   statusCode?: any
@@ -38,7 +50,7 @@ export interface LowLevelErrorInternal extends LowLevelErrorDef {
   /**
    * Name of the Low Level Error
    */
-  code?: string
+  type?: string
 }
 
 export interface IBaseError {
@@ -86,21 +98,22 @@ export interface IBaseError {
 }
 
 /**
- * Safe-version of a serialized error object
+ * Safe-version of a serialized error object that can be shown to a client /
+ * end-user.
  */
 export interface SerializedErrorSafe {
   /**
-   * Name of the High Level Error
+   * The high level code to show to a client.
    */
-  name: string
+  code: any
   /**
-   * Name of the Low Level Error
+   * The low level code to show to a client.
    */
-  code?: string
+  subCode?: any
   /**
    * Protocol-specific status code, such as an HTTP status code.
    */
-  statusCode: any
+  statusCode?: any
   /**
    * User-defined metadata
    */
@@ -111,6 +124,14 @@ export interface SerializedErrorSafe {
  * Serialized error object
  */
 export interface SerializedError extends SerializedErrorSafe {
+  /**
+   * Name of the High Level Error
+   */
+  name: string
+  /**
+   * Name of the Low Level Error
+   */
+  type: string
   /**
    * Message as defined in the Low Level Error
    */
