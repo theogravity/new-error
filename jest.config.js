@@ -1,7 +1,8 @@
 module.exports = {
   preset: 'ts-jest',
   collectCoverageFrom: [
-    'src/**/*.ts'
+    'src/**/*.ts',
+    '!src/index.ts'
   ],
   testResultsProcessor: './node_modules/jest-junit-reporter',
   testEnvironment: 'node',
@@ -11,10 +12,10 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      statements: 0,
-      branches: 0,
-      functions: 0,
-      lines: 0
+      statements: 100,
+      branches: 100,
+      functions: 100,
+      lines: 100
     }
   }
 }

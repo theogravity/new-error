@@ -36,9 +36,11 @@ export class ErrorRegistry<
     this.lowLevelErrors = {} as any
     this.highLevelErrorClasses = {} as any
 
+    // populate the lowLevelErrors dictionary
     Object.keys(lowLvErrors).forEach(code => {
-      const errCode = this.lowLevelErrors[code] as LowLevelErrorInternal
+      const errCode = lowLvErrors[code] as LowLevelErrorInternal
       errCode.code = code
+      this.lowLevelErrors[code] = errCode
     })
   }
 
@@ -60,13 +62,6 @@ export class ErrorRegistry<
     lowLvErrName: keyof LLError
   ): LowLevelErrorInternal {
     return this.lowLevelErrors[lowLvErrName]
-  }
-
-  /**
-   * Compares an instance of an object to a specified High Level Error
-   */
-  instanceOf (a: any, highLvErrName: keyof HLError) {
-    return a instanceof this.highLevelErrorClasses[highLvErrName]
   }
 
   /**
@@ -93,6 +88,13 @@ export class ErrorRegistry<
   }
 
   /**
+   * Compares an instance of an object to a specified High Level Error
+   */
+  instanceOf (a: any, highLvErrName: keyof HLError) {
+    return a instanceof this.getClass(highLvErrName)
+  }
+
+  /**
    * Creates an instance of a High Level Error, without a Low Level Error
    * attached to it.
    * @param {string} highLvErrName
@@ -102,10 +104,6 @@ export class ErrorRegistry<
     highLvErrName: keyof HLError,
     message: string
   ): BaseRegistryError {
-    if (!highLvErrName) {
-      throw new Error(`High level error not defined: ${highLvErrName}`)
-    }
-
     const C = this.getClass(highLvErrName)
     return new C(this.getHighLevelError(highLvErrName), {
       message
@@ -122,7 +120,7 @@ export class ErrorRegistry<
     highLvErrName: keyof HLError,
     lowLvErrName: keyof LLError
   ): BaseRegistryError {
-    if (!lowLvErrName) {
+    if (!this.lowLevelErrors[lowLvErrName]) {
       throw new Error(`Low level error not defined: ${lowLvErrName}`)
     }
 

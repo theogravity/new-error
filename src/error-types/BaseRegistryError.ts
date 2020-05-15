@@ -11,24 +11,16 @@ export class BaseRegistryError extends BaseError {
   ) {
     super(lowLevelErrorDef.message)
 
-    if (highLevelErrorDef.codeNo) {
-      this._safeMetadata.codeNo = highLevelErrorDef.codeNo
-    }
-
     if (highLevelErrorDef.statusCode) {
-      this._safeMetadata.statusCode = highLevelErrorDef.statusCode
-    }
-
-    if (lowLevelErrorDef.code) {
-      this._safeMetadata.code = lowLevelErrorDef.code
-    }
-
-    if (lowLevelErrorDef.codeNo) {
-      this._safeMetadata.codeNo = lowLevelErrorDef.codeNo
+      this.withStatusCode(highLevelErrorDef.statusCode)
     }
 
     if (lowLevelErrorDef.statusCode) {
-      this._safeMetadata.statusCode = lowLevelErrorDef.statusCode
+      this.withStatusCode(lowLevelErrorDef.statusCode)
+    }
+
+    if (lowLevelErrorDef.code) {
+      this.withErrorCode(lowLevelErrorDef.code)
     }
   }
 }

@@ -6,6 +6,8 @@ import { IBaseError, SerializedError, SerializedErrorSafe } from '../interfaces'
  * Improved error class.
  */
 export class BaseError extends ExtendableError implements IBaseError {
+  protected _code: string
+  protected _statusCode: any
   protected _causedBy: any
   protected _safeMetadata: Record<string, any>
   protected _metadata: Record<string, any>
@@ -15,6 +17,15 @@ export class BaseError extends ExtendableError implements IBaseError {
 
     this._safeMetadata = {}
     this._metadata = {}
+  }
+
+  /**
+   * Set low level error code
+   * @param code
+   */
+  protected withErrorCode (code: string) {
+    this._code = code
+    return this
   }
 
   /**
@@ -50,6 +61,15 @@ export class BaseError extends ExtendableError implements IBaseError {
   }
 
   /**
+   * Set a protocol-specific status code
+   * @param statusCode
+   */
+  withStatusCode (statusCode: any) {
+    this._statusCode = statusCode
+    return this
+  }
+
+  /**
    * Adds metadata that will be included with toJSON() / toJsonSafe()
    * serialization. Multiple calls will append and not replace.
    * @param {Object} metadata
@@ -68,26 +88,34 @@ export class BaseError extends ExtendableError implements IBaseError {
    * Use / implement toJsonSafe() to return data that is safe for client
    * consumption.
    */
-  toJson (): SerializedError {
+  toJSON (): SerializedError {
     return {
-      ...this._metadata,
-      ...this._safeMetadata,
       name: this.name,
       message: this.message,
-      stack: this.stack,
-      causedBy: this._causedBy
+      code: this._code,
+      statusCode: this._statusCode,
+      meta: {
+        ...this._metadata,
+        ...this._safeMetadata
+      },
+      causedBy: this._causedBy,
+      stack: this.stack
     }
   }
 
   /**
-   * Returns a safe json representation of the error (error stack is removed).
+   * Returns a safe json representation of the error (error stack / causedBy is removed).
    * This should be used for display to a user / pass to a client.
    */
-  toJsonSafe (): SerializedErrorSafe {
+  toJSONSafe (): SerializedErrorSafe {
     return {
-      ...this._safeMetadata,
       name: this.name,
-      message: this.message
+      message: this.message,
+      code: this._code,
+      statusCode: this._statusCode,
+      meta: {
+        ...this._safeMetadata
+      }
     }
   }
 }

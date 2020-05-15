@@ -8,16 +8,10 @@ export interface HighLevelErrorDef {
   className: string
 
   /**
-   * A numeric representation of the High Level Error. Used as the default
-   * if a Low Level Error is not specified or defined.
-   */
-  codeNo?: number
-
-  /**
    * Protocol-specific status code, such as an HTTP status code. Used as the
    * default if a Low Level Error status code is not specified or defined.
    */
-  statusCode: any
+  statusCode?: any
 }
 
 /**
@@ -30,13 +24,6 @@ export interface LowLevelErrorDef {
    * @see https://www.npmjs.com/package/sprintf-js
    */
   message: string
-
-  /**
-   * A numeric representation of the Low Level Error.
-   * Useful if you want to omit the Low Level Error name
-   * and display this instead to the user.
-   */
-  codeNo?: number
 
   /**
    * Protocol-specific status code, such as an HTTP status code.
@@ -88,14 +75,17 @@ export interface IBaseError {
    * Use / implement toJsonSafe() to return data that is safe for client
    * consumption.
    */
-  toJson(): SerializedError
+  toJSON(): SerializedError
   /**
-   * Returns a safe json representation of the error (error stack is removed).
+   * Returns a safe json representation of the error (error stack / causedBy is removed).
    * This should be used for display to a user / pass to a client.
    */
-  toJsonSafe(): SerializedErrorSafe
+  toJSONSafe(): SerializedErrorSafe
 }
 
+/**
+ * Safe-version of a serialized error object
+ */
 export interface SerializedErrorSafe {
   /**
    * Name of the High Level Error
@@ -106,22 +96,22 @@ export interface SerializedErrorSafe {
    */
   code?: string
   /**
-   * A numeric representation of the sub-category.
-   * Useful if you want to omit the sub category code
-   * and display this instead to the user.
+   * Protocol-specific status code, such as an HTTP status code.
    */
-  codeNo?: number
+  statusCode: any
   /**
    * Message as defined in the Low Level Error
    */
   message: string
-
   /**
-   * Additional metadata
+   * User-defined metadata
    */
-  [key: string]: any
+  meta: Record<string, any>
 }
 
+/**
+ * Serialized error object
+ */
 export interface SerializedError extends SerializedErrorSafe {
   /**
    * Stack trace
