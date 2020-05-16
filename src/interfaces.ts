@@ -100,6 +100,24 @@ export interface IBaseError {
   causedBy(error: any): this
 
   /**
+   * Set the error type
+   * @param type
+   */
+  withErrorType(type: string): this
+
+  /**
+   * Set high level error code
+   * @param code
+   */
+  withErrorCode(code: string | number): this
+
+  /**
+   * Set low level error code
+   * @param subCode
+   */
+  withErrorSubCode(subCode: string | number): this
+
+  /**
    * Adds metadata that will be included with toJSON() serialization.
    * Multiple calls will append and not replace.
    * @param {Object} metadata
