@@ -363,7 +363,7 @@ function handleError(err) {
 
 # Error API
 
-Except for the serialization methods, all methods are chainable.
+Except for the getter and serialization methods, all other methods are chainable.
 
 Generated errors extend the `BaseError` class, which supplies the manipulation methods.
 
