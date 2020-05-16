@@ -23,11 +23,12 @@ of errors to a client or for internal development / logs.
 <!-- TOC -->
 - [Motivation / Error handling use-cases](#motivation--error-handling-use-cases)
 - [Installation](#installation)
-- [Example Usage](#example-usage)
+- [Examples](#examples)
   - [With the error registry](#with-the-error-registry)
   - [Class-based with low level errors without a registry](#class-based-with-low-level-errors-without-a-registry)
   - [Bare-bones class-based error](#bare-bones-class-based-error)
-- [Error Registry](#error-registry)
+- [Example Express Integration](#example-express-integration)
+- [Error Registry API](#error-registry-api)
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
     - [Create an error without a low-level error](#create-an-error-without-a-low-level-error)
@@ -44,7 +45,6 @@ of errors to a client or for internal development / logs.
   - [Serializing errors](#serializing-errors)
     - [Safe serialization](#safe-serialization)
     - [Internal serialization](#internal-serialization)
-- [Example Express Error Handling](#example-express-error-handling)
 
 <!-- TOC END -->
 
@@ -70,15 +70,17 @@ In a production-level application, I've experienced the following use-cases:
 
 `$ npm i new-error --save`
 
-# Example Usage
-
-## With the error registry
+# Examples
 
 - Define a set of high level errors
   * Common high level error types could be 4xx/5xx HTTP codes
 - Define a set of low level errors
   * Think of low level errors as a fine-grained sub-code/category to a high level error
 - Initialize the error registry with the errors
+
+## With the error registry
+
+The error registry is the fastest way to define and create errors.
 
 ```typescript
 // This is a working example
@@ -216,7 +218,84 @@ const err = new InternalServerError('There was a database failure, SQL err code 
 console.log(err.formatMessage('SQL_1234').toJSON())
 ```
 
-# Error Registry
+# Example Express Integration
+
+```typescript
+import express from 'express'
+import { ErrorRegistry, BaseError } from 'new-error'
+const app = express()
+const port = 3000
+
+const errors = {
+  INTERNAL_SERVER_ERROR: {
+    className: 'InternalServerError',
+    code: 'ERR_INT_500',
+    statusCode: 500
+  }
+}
+
+const errorCodes = {
+  DATABASE_FAILURE: {
+    message: 'There was a database failure.',
+    subCode: 'DB_0001',
+    statusCode: 500
+  }
+}
+
+const errRegistry = new ErrorRegistry(errors, errorCodes)
+
+// middleware definition
+app.get('/', async (req, res, next) => {
+  try {
+    // simulate a failure
+    throw new Error('SQL issue')
+  } catch (e) {
+    const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+    err.causedBy(err)
+    // errors must be passed to next()
+    // to be caught when using an async middleware
+    return next(err)
+  }
+})
+
+// catch errors
+app.use((err, req, res, next) => {
+  // error was sent from middleware
+  if (err) {
+    // check if the error is a generated one
+    if (err instanceof BaseError) {
+      // get the status code, if the status code is not defined, default to 500
+      res.status(err.getStatusCode() ?? 500)
+      // spit out the error to the client
+      return res.json({
+        err: err.toJSONSafe()
+      })
+    }
+ 
+    // You'll need to modify code below to best fit your use-case
+    // err.message could potentially expose system internals
+    return res.json({
+      err: {
+        message: err.message
+      }
+    })
+  }
+
+  // no error, proceed
+  next()
+})
+
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+```
+
+If you visit `http://localhost:3000`, you'll get a 500 status code, and the following response:
+
+```
+{"err": {"code":"ERR_INT_500","subCode":"DB_0001","statusCode":500,"meta":{}}}
+```
+
+
+# Error Registry API
 
 The `ErrorRegistry` is responsible for the registration and creation of errors.
 
@@ -455,80 +534,4 @@ Produces:
     '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
     '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
 }
-```
-
-# Example Express Error Handling
-
-```typescript
-import express from 'express'
-import { ErrorRegistry, BaseError } from 'new-error'
-const app = express()
-const port = 3000
-
-const errors = {
-  INTERNAL_SERVER_ERROR: {
-    className: 'InternalServerError',
-    code: 'ERR_INT_500',
-    statusCode: 500
-  }
-}
-
-const errorCodes = {
-  DATABASE_FAILURE: {
-    message: 'There was a database failure.',
-    subCode: 'DB_0001',
-    statusCode: 500
-  }
-}
-
-const errRegistry = new ErrorRegistry(errors, errorCodes)
-
-// middleware definition
-app.get('/', async (req, res, next) => {
-  try {
-    // simulate a failure
-    throw new Error('SQL issue')
-  } catch (e) {
-    const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
-    err.causedBy(err)
-    // errors must be passed to next()
-    // to be caught when using an async middleware
-    return next(err)
-  }
-})
-
-// catch errors
-app.use((err, req, res, next) => {
-  // error was sent from middleware
-  if (err) {
-    // check if the error is a generated one
-    if (err instanceof BaseError) {
-      // get the status code, if the status code is not defined, default to 500
-      res.status(err.getStatusCode() ?? 500)
-      // spit out the error to the client
-      return res.json({
-        err: err.toJSONSafe()
-      })
-    }
- 
-    // You'll need to modify code below to best fit your use-case
-    // err.message could potentially expose system internals
-    return res.json({
-      err: {
-        message: err.message
-      }
-    })
-  }
-
-  // no error, proceed
-  next()
-})
-
-app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
-```
-
-If you visit `http://localhost:3000`, you'll get a 500 status code, and the following response:
-
-```
-{"err": {"code":"ERR_INT_500","subCode":"DB_0001","statusCode":500,"meta":{}}}
 ```
