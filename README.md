@@ -62,7 +62,7 @@ In a production-level application, I've experienced the following use-cases:
 - Errors that are exposed to the end-user / client should not reveal data that would expose system internals.
 - Error responses from an API service should follow a common format.
 - End-users / clients should be able to relay the error back to support; the relayed data should be enough for a developer to troubleshoot.
-- Client developers will want to know the available list of errors / codes to expect.
+- Client developers prefer a list of error codes to expect from an API service so they can properly handle errors.
 
 `new-error` was built with these use-cases in mind.
 
