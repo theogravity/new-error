@@ -1,3 +1,12 @@
+## 1.0.6 - Fri May 15 2020 23:34:12
+
+**Contributor:** Theo Gravity
+
+- [minor] Concrete class-based support (#1)
+
+- Added examples on how to work with the library without the registry
+- Updated and exported some interfaces to assist with class-based creation
+
 ## 1.0.5 - Fri May 15 2020 20:57:38
 
 **Contributor:** Theo Gravity
