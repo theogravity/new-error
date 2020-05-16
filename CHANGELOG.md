@@ -1,3 +1,9 @@
+## 1.0.8 - Sat May 16 2020 00:20:35
+
+**Contributor:** Theo Gravity
+
+- Update readme with more examples
+
 ## 1.0.7 - Sat May 16 2020 00:05:10
 
 **Contributor:** Theo Gravity
