@@ -1,3 +1,9 @@
+## 1.0.7 - Sat May 16 2020 00:05:10
+
+**Contributor:** Theo Gravity
+
+- Update readme with use-cases
+
 ## 1.0.6 - Fri May 15 2020 23:34:12
 
 **Contributor:** Theo Gravity
