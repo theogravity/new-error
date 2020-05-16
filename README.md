@@ -21,6 +21,7 @@ of errors to a client or for internal development / logs.
 # Table of Contents 
 
 <!-- TOC -->
+- [Motivation / Error handling use-cases](#motivation--error-handling-use-cases)
 - [Installation](#installation)
 - [Example Usage](#example-usage)
   - [With the error registry](#with-the-error-registry)
@@ -46,6 +47,23 @@ of errors to a client or for internal development / logs.
 - [Example Express Error Handling](#example-express-error-handling)
 
 <!-- TOC END -->
+
+# Motivation / Error handling use-cases
+
+The basic Javascript Error type is extremely bare bones - you can only specify a message.
+
+In a production-level application, I've experienced the following use-cases:
+
+- A developer should be able to add metadata to the error that may assist with troubleshooting.
+- A developer should be able to reference the original error.
+- Errors should be able to work with a logging framework.
+- Errors should be well-formed / have a defined structure that can be consumed / emitted for analytics and services.
+- Errors should not expose sensitive data to the end-user / client.
+- Errors that are exposed to the end-user / client should not reveal data that would expose system internals.
+- Error responses from an API service should follow a common format.
+- End-users / clients should be able to relay the error back to support; the relayed data should be enough for a developer to troubleshoot.
+
+`new-error` was built with these use-cases in mind.
 
 # Installation
 
@@ -491,6 +509,14 @@ app.use((err, req, res, next) => {
         err: err.toJSONSafe()
       })
     }
+ 
+    // You'll need to modify code below to best fit your use-case
+    // err.message could potentially expose system internals
+    return res.json({
+      err: {
+        message: err.message
+      }
+    })
   }
 
   // no error, proceed
