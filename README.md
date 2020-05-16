@@ -210,6 +210,7 @@ import { BaseError } from 'new-error'
 class InternalServerError extends BaseError {}
 
 const err = new InternalServerError('There was a database failure, SQL err code %s')
+  // calling these methods are optional
   .withErrorType('DATABASE_FAILURE')
   .withErrorCode('ERR_INT_500')
   .withErrorSubCode('DB_0001')
