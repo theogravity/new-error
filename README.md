@@ -277,6 +277,11 @@ app.use((err, req, res, next) => {
       // you'll want to use a library like 'nanoid' instead
       // this is just an example
       err.withErrorId(Math.random().toString(36).slice(2))
+
+      // log the error
+      // the "null, 2" options formats the error into a readable structure
+      console.error(JSON.stringify(err.toJSON(), null, 2))
+
       // get the status code, if the status code is not defined, default to 500
       res.status(err.getStatusCode() ?? 500)
       // spit out the error to the client
