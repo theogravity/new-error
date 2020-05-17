@@ -70,6 +70,10 @@ export interface LowLevelError extends LowLevelErrorDef {
 
 export interface IBaseError {
   /**
+   * Get the instance-specific error id
+   */
+  getErrorId(): string
+  /**
    * Get the class name of the error
    */
   getErrorName(): string
@@ -106,6 +110,12 @@ export interface IBaseError {
    * @param {Error} error
    */
   causedBy(error: any): this
+
+  /**
+   * Set an error id used to link back to the specific error
+   * @param {string} errId
+   */
+  withErrorId(errId: string): this
 
   /**
    * Set the error type

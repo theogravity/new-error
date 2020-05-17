@@ -39,6 +39,7 @@ of errors to a client or for internal development / logs.
 - [Error API](#error-api)
   - [Getters](#getters)
   - [Basic setters](#basic-setters)
+  - [Set an error id](#set-an-error-id)
   - [Attaching errors](#attaching-errors)
   - [Format messages](#format-messages)
   - [Adding metadata](#adding-metadata)
@@ -60,6 +61,7 @@ In a production-level application, I've experienced the following use-cases:
 - A developer should be able to reference the original error.
 - Errors should be able to work with a logging framework.
 - Errors should be well-formed / have a defined structure that can be consumed / emitted for analytics and services.
+- Errors should be able to be cross-referenced in various systems via an identifier / error id.
 - Errors should not expose sensitive data to the end-user / client.
 - Errors that are exposed to the end-user / client should not reveal data that would expose system internals.
 - Error responses from an API service should follow a common format.
@@ -140,7 +142,10 @@ const errRegistry = new ErrorRegistry(errors, errorCodes)
 // Create an instance of InternalServerError
 // Typescript autocomplete should show the available definitions as you type the error names
 // and type check will ensure that the values are valid
-const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE').formatMessage('SQL_1234')
+const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+  .setErrorId('err-1234')
+  .formatMessage('SQL_1234')
+
 console.log(err.toJSON())
 ```
 
@@ -150,6 +155,7 @@ Produces:
 
 ```
 {
+  errId: 'err-1234',
   name: 'InternalServerError',
   code: 'ERR_INT_500',
   message: 'There was a database failure, SQL err code SQL_1234',
@@ -371,6 +377,7 @@ Generated errors extend the `BaseError` class, which supplies the manipulation m
 
 ## Getters
 
+- `BaseError#getErrorId()`
 - `BaseError#getErrorName()`
 - `BaseError#getCode()`
 - `BaseError#getErrorType()`
@@ -389,9 +396,31 @@ sets the values already.
 - `BaseError#withErrorCode(code: string | number): this`
 - `BaseError#withErrorSubCode(code: string | number): this`
 
+## Set an error id
+
+Method: `BaseError#withErrorId(errId: string)`
+
+Attaches an id to the error. Useful if you want to display an error id to a client / end-user
+and want to cross-reference that id in an internal logging system for easier troubleshooting.
+
+For example, you might want to use [`nanoid`](https://github.com/ai/nanoid) to generate ids for errors.
+
+```typescript
+import { nanoid } from 'nanoid'
+
+err.withErrorId(nanoid())
+
+// In your logging system, log the error, which will include the error id
+logger.error(err.toJSON())
+
+// expose the error to the client via err.toJSONSafe() or err.getErrorId(), which 
+// will also include the error id - an end-user can reference this id to 
+// support for troubleshooting
+```
+
 ## Attaching errors
 
-Method: `BaseError#causedBy(err)`
+Method: `BaseError#causedBy(err: any)`
 
 You can attach another error to the error.
 

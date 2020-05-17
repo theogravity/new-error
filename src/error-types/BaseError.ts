@@ -6,6 +6,7 @@ import { IBaseError, SerializedError, SerializedErrorSafe } from '../interfaces'
  * Improved error class.
  */
 export class BaseError extends ExtendableError implements IBaseError {
+  protected _errId: string
   protected _type: string
   protected _code: string | number
   protected _subCode: string | number
@@ -19,6 +20,15 @@ export class BaseError extends ExtendableError implements IBaseError {
 
     this._safeMetadata = {}
     this._metadata = {}
+  }
+
+  /**
+   * Set an error id used to link back to the specific error
+   * @param errId
+   */
+  withErrorId (errId: string) {
+    this._errId = errId
+    return this
   }
 
   /**
@@ -46,6 +56,13 @@ export class BaseError extends ExtendableError implements IBaseError {
   withErrorSubCode (subCode: string | number) {
     this._subCode = subCode
     return this
+  }
+
+  /**
+   * Get the instance-specific error id
+   */
+  getErrorId () {
+    return this._errId
   }
 
   /**
@@ -167,6 +184,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    */
   toJSON (fieldsToOmit: string[] = []): Partial<SerializedError> {
     const data = {
+      errId: this._errId,
       name: this.name,
       code: this._code,
       message: this.message,
@@ -202,6 +220,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    */
   toJSONSafe (fieldsToOmit: string[] = []): Partial<SerializedErrorSafe> {
     const data = {
+      errId: this._errId,
       code: this._code,
       subCode: this._subCode,
       statusCode: this._statusCode,
