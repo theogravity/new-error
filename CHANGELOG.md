@@ -1,3 +1,9 @@
+## 1.0.9 - Sat May 16 2020 00:39:12
+
+**Contributor:** Theo Gravity
+
+- Add missing methods to `IBaseError` (#3)
+
 ## 1.0.8 - Sat May 16 2020 00:20:35
 
 **Contributor:** Theo Gravity
