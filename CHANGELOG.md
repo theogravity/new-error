@@ -1,3 +1,11 @@
+## 1.0.11 - Sun May 17 2020 22:42:30
+
+**Contributor:** Theo Gravity
+
+- Add `withErrorId()`, `getErrorId()` methods
+
+These methods were added to help cross-refeference an error between systems. The readme has been updated with usage and an example on a best-practice situation.
+
 ## 1.0.10 - Sun May 17 2020 21:02:32
 
 **Contributor:** Theo Gravity
