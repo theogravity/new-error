@@ -70,6 +70,10 @@ export interface LowLevelError extends LowLevelErrorDef {
 
 export interface IBaseError {
   /**
+   * Get the class name of the error
+   */
+  getErrorName(): string
+  /**
    * Returns the high level error code
    */
   getCode(): string | number
@@ -81,6 +85,10 @@ export interface IBaseError {
    * Returns the status code.
    */
   getStatusCode(): string | number
+  /**
+   * Get the low level error type
+   */
+  getErrorType(): string
   /**
    * Returns the attached error
    */

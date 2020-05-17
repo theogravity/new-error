@@ -1,3 +1,20 @@
+## 1.0.10 - Sun May 17 2020 21:02:32
+
+**Contributor:** Theo Gravity
+
+- Add new methods and documentation (#4)
+
+Added:
+
+- `BaseError#getErrorType()`
+- `BaseError#getErrorName()`
+
+## 1.0.9 - Sat May 16 2020 00:39:12
+
+**Contributor:** Theo Gravity
+
+- Add missing methods to `IBaseError` (#3)
+
 ## 1.0.8 - Sat May 16 2020 00:20:35
 
 **Contributor:** Theo Gravity

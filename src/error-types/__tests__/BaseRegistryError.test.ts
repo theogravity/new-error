@@ -9,6 +9,7 @@ describe('BaseRegistryError', () => {
         statusCode: 300
       },
       {
+        type: 'LOW_LEVEL_TYPE',
         statusCode: 400,
         subCode: 'SUB_CODE_ERR',
         message: 'This is a test error'
@@ -24,9 +25,11 @@ describe('BaseRegistryError', () => {
       })
     )
 
+    expect(err.getErrorName()).toBe('BaseRegistryError')
     expect(err.getCode()).toBe('TEST_ERR')
     expect(err.getSubCode()).toBe('SUB_CODE_ERR')
     expect(err.getStatusCode()).toBe(400)
+    expect(err.getErrorType()).toBe('LOW_LEVEL_TYPE')
     expect(err.stack).toBeDefined()
   })
 
