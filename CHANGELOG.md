@@ -1,3 +1,16 @@
+## 1.0.10 - Sun May 17 2020 21:02:32
+
+**Contributor:** Theo Gravity
+
+- Add new methods and documentation (#4)
+
+Added:
+
+- `BaseError#getErrorType()`
+- `BaseError#getErrorName()`
+
+* Update readme
+
 ## 1.0.9 - Sat May 16 2020 00:39:12
 
 **Contributor:** Theo Gravity
