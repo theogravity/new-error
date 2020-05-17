@@ -273,6 +273,10 @@ app.use((err, req, res, next) => {
   if (err) {
     // check if the error is a generated one
     if (err instanceof BaseError) {
+      // generate an error id
+      // you'll want to use a library like 'nanoid' instead
+      // this is just an example
+      err.withErrorId(Math.random().toString(36).slice(2))
       // get the status code, if the status code is not defined, default to 500
       res.status(err.getStatusCode() ?? 500)
       // spit out the error to the client
@@ -300,7 +304,7 @@ app.listen(port, () => console.log(`Example app listening at http://localhost:${
 If you visit `http://localhost:3000`, you'll get a 500 status code, and the following response:
 
 ```
-{"err": {"code":"ERR_INT_500","subCode":"DB_0001","statusCode":500,"meta":{}}}
+{"err": {"errId": "xd0v1szkziq", code":"ERR_INT_500","subCode":"DB_0001","statusCode":500,"meta":{}}}
 ```
 
 
