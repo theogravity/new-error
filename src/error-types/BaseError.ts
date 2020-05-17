@@ -49,6 +49,20 @@ export class BaseError extends ExtendableError implements IBaseError {
   }
 
   /**
+   * Get the class name of the error
+   */
+  getErrorName () {
+    return this.name
+  }
+
+  /**
+   * Get the low level error type
+   */
+  getErrorType () {
+    return this._type
+  }
+
+  /**
    * Returns the status code.
    */
   getStatusCode () {

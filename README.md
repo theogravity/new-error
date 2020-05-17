@@ -369,12 +369,23 @@ Generated errors extend the `BaseError` class, which supplies the manipulation m
 
 ## Getters
 
+- `BaseError#getErrorName()`
 - `BaseError#getCode()`
+- `BaseError#getErrorType()`
 - `BaseError#getSubCode()`
 - `BaseError#getStatusCode()`
 - `BaseError#getCausedBy()`
 - `BaseError#getMetadata()`
 - `BaseError#getSafeMetadata()`
+
+## Basic setters
+
+If you use the registry, you should not need to us these setters as the registry
+sets the values already.
+
+- `BaseError#withErrorType(type: string): this`
+- `BaseError#withErrorCode(code: string | number): this`
+- `BaseError#withErrorSubCode(code: string | number): this`
 
 ## Attaching errors
 
