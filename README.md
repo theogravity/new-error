@@ -11,6 +11,7 @@ of errors to a client or for internal development / logs.
 - All created errors extend `Error` with additional methods added on.
 - Show errors that are safe for client / user-consumption vs internal only.
 - Create your own custom error types with custom messaging, status codes and metadata.
+  * Errors can be created via a registry (recommended), or you can create your own error classes.
 - Attach an error to your error object to get the full error chain.
 - Selectively expose error metadata based on internal or external use.
 - Built-in auto-completion for Typescript when searching for registered error types.
@@ -37,6 +38,7 @@ of errors to a client or for internal development / logs.
     - [Native `instanceof`](#native-instanceof)
 - [Error API](#error-api)
   - [Getters](#getters)
+  - [Basic setters](#basic-setters)
   - [Attaching errors](#attaching-errors)
   - [Format messages](#format-messages)
   - [Adding metadata](#adding-metadata)
@@ -369,12 +371,23 @@ Generated errors extend the `BaseError` class, which supplies the manipulation m
 
 ## Getters
 
+- `BaseError#getErrorName()`
 - `BaseError#getCode()`
+- `BaseError#getErrorType()`
 - `BaseError#getSubCode()`
 - `BaseError#getStatusCode()`
 - `BaseError#getCausedBy()`
 - `BaseError#getMetadata()`
 - `BaseError#getSafeMetadata()`
+
+## Basic setters
+
+If you use the registry, you should not need to us these setters as the registry
+sets the values already.
+
+- `BaseError#withErrorType(type: string): this`
+- `BaseError#withErrorCode(code: string | number): this`
+- `BaseError#withErrorSubCode(code: string | number): this`
 
 ## Attaching errors
 
