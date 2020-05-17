@@ -9,8 +9,6 @@ Added:
 - `BaseError#getErrorType()`
 - `BaseError#getErrorName()`
 
-* Update readme
-
 ## 1.0.9 - Sat May 16 2020 00:39:12
 
 **Contributor:** Theo Gravity
