@@ -550,7 +550,7 @@ Generates output that would be suitable for internal use.
 - Includes `message`
 - Includes `causedBy`
 - Includes the stack trace
-- All data from `BaseError#withMetadata()` and `BaseError#withJSONMetadata()` is included
+- All data from `BaseError#withMetadata()` and `BaseError#withSafeMetadata()` is included
 
 ```typescript
 err.withSafeMetadata({
