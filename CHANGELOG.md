@@ -1,3 +1,11 @@
+## 1.0.12 - Wed Jun 03 2020 03:54:55
+
+**Contributor:** Theo Gravity
+
+- Update README.md
+
+Fix npm badge from http->https to fix render issues on the npm page
+
 ## 1.0.11 - Sun May 17 2020 22:42:30
 
 **Contributor:** Theo Gravity
