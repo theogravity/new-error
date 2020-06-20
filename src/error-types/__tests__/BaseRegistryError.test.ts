@@ -37,43 +37,90 @@ describe('BaseRegistryError', () => {
     expect(err.stack).toBeDefined()
   })
 
-  it('should use the default high level error code', () => {
-    const err = new BaseRegistryError(
-      {
-        code: 'TEST_ERR',
-        statusCode: 300
-      },
-      {
-        message: 'This is a test error'
-      }
-    )
+  describe('error codes', () => {
+    it('should use the default high level error code', () => {
+      const err = new BaseRegistryError(
+        {
+          code: 'TEST_ERR',
+          statusCode: 300
+        },
+        {
+          message: 'This is a test error'
+        }
+      )
 
-    expect(err.toJSON()).toEqual(
-      expect.objectContaining({
-        statusCode: 300
-      })
-    )
+      expect(err.toJSON()).toEqual(
+        expect.objectContaining({
+          statusCode: 300
+        })
+      )
 
-    expect(err.stack).toBeDefined()
+      expect(err.stack).toBeDefined()
+    })
+
+    it('should use the low level error code', () => {
+      const err = new BaseRegistryError(
+        {
+          code: 'TEST_ERR'
+        },
+        {
+          message: 'This is a test error',
+          statusCode: 500
+        }
+      )
+
+      expect(err.toJSON()).toEqual(
+        expect.objectContaining({
+          statusCode: 500
+        })
+      )
+
+      expect(err.stack).toBeDefined()
+    })
   })
 
-  it('should use the low level error code', () => {
-    const err = new BaseRegistryError(
-      {
-        code: 'TEST_ERR'
-      },
-      {
-        message: 'This is a test error',
-        statusCode: 500
-      }
-    )
+  describe('log levels', () => {
+    it('should use the default high level log level', () => {
+      const err = new BaseRegistryError(
+        {
+          code: 'TEST_ERR',
+          logLevel: 'debug'
+        },
+        {
+          message: 'This is a test error'
+        }
+      )
 
-    expect(err.toJSON()).toEqual(
-      expect.objectContaining({
-        statusCode: 500
-      })
-    )
+      expect(err.getLogLevel()).toBe('debug')
+    })
 
-    expect(err.stack).toBeDefined()
+    it('should use the low level log level', () => {
+      const err = new BaseRegistryError(
+        {
+          code: 'TEST_ERR',
+          logLevel: 'debug'
+        },
+        {
+          message: 'This is a test error',
+          logLevel: 'trace'
+        }
+      )
+
+      expect(err.getLogLevel()).toBe('trace')
+    })
+
+    it('should use the low level log level 2', () => {
+      const err = new BaseRegistryError(
+        {
+          code: 'TEST_ERR'
+        },
+        {
+          message: 'This is a test error',
+          logLevel: 'trace'
+        }
+      )
+
+      expect(err.getLogLevel()).toBe('trace')
+    })
   })
 })

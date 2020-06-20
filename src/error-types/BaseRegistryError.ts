@@ -17,6 +17,10 @@ export class BaseRegistryError extends BaseError {
       this.withStatusCode(highLevelErrorDef.statusCode)
     }
 
+    if (highLevelErrorDef.logLevel) {
+      this.withLogLevel(highLevelErrorDef.logLevel)
+    }
+
     if (lowLevelErrorDef.statusCode) {
       this.withStatusCode(lowLevelErrorDef.statusCode)
     }
@@ -27,6 +31,10 @@ export class BaseRegistryError extends BaseError {
 
     if (lowLevelErrorDef.subCode) {
       this.withErrorSubCode(lowLevelErrorDef.subCode)
+    }
+
+    if (lowLevelErrorDef.logLevel) {
+      this.withLogLevel(lowLevelErrorDef.logLevel)
     }
   }
 }
