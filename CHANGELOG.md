@@ -2,9 +2,13 @@
 
 **Contributor:** Theo Gravity
 
-- Update README.md [skip ci]
+- Add support for defining log levels
+    
+This adds the `logLevel` property to the error definitions along with
+corresponding `getLogLevel()` and `withLogLevel()` methods.
 
-Add another example for log level.
+There are cases where certain errors do not warrant being logged
+under an `error` log level when combined with a logging system.
 
 ## 1.0.12 - Wed Jun 03 2020 03:54:55
 
