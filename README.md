@@ -29,6 +29,7 @@ of errors to a client or for internal development / logs.
   - [Class-based with low level errors without a registry](#class-based-with-low-level-errors-without-a-registry)
   - [Bare-bones class-based error](#bare-bones-class-based-error)
 - [Example Express Integration](#example-express-integration)
+- [Working with log levels](#working-with-log-levels)
 - [Error Registry API](#error-registry-api)
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
@@ -105,9 +106,17 @@ const errors = {
     code: 'ERR_INT_500',
    /**
     * (optional) Protocol-specific status code, such as an HTTP status code. Used as the
-    * default if a Low Level Error status code is not specified or defined.
+    * default if a Low Level Error status code is not defined.
     */
-    statusCode: 500
+    statusCode: 500,
+
+    /**
+     * (optional) Log level string / number to associate with this error.
+     * Useful if you want to use your logging system to log the error but
+     * assign a different log level for it. Used as the default if a
+     * Low Level log level is not defined.
+     */
+    logLevel: 'error'
   }
 }
 
@@ -130,7 +139,13 @@ const errorCodes = {
     /**
      * (optional) Protocol-specific status code, such as an HTTP status code.
      */
-    statusCode: 500
+    statusCode: 500,
+    /**
+     * (optional) Log level string / number to associate with this error.
+     * Useful if you want to use your logging system to log the error but
+     * assign a different log level for it.
+     */
+    logLevel: 'error'
   }
 }
 
@@ -223,6 +238,7 @@ const err = new InternalServerError('There was a database failure, SQL err code 
   .withErrorCode('ERR_INT_500')
   .withErrorSubCode('DB_0001')
   .withStatusCode(500)
+  .withLogLevel('error')
 
 console.log(err.formatMessage('SQL_1234').toJSON())
 ```
@@ -312,6 +328,45 @@ If you visit `http://localhost:3000`, you'll get a 500 status code, and the foll
 {"err": {"errId": "xd0v1szkziq", code":"ERR_INT_500","subCode":"DB_0001","statusCode":500,"meta":{}}}
 ```
 
+# Working with log levels
+
+You might want to use a different log level when logging common errors, such as validation errors.
+
+```typescript
+import { ErrorRegistry } from 'new-error'
+
+const errors = {
+  VALIDATION_ERROR: {
+    className: 'ValidationError',
+    code: 'VALIDATION_ERROR',
+    statusCode: 400,
+    // probably don't want to log every validation error
+    // in production since these errors tend to happen frequently
+    // and would pollute the logs
+    logLevel: 'debug'
+  }
+}
+
+const errorCodes = {
+  MISSING_FORM_FIELDS: {
+    message: 'Form submission data is missing fields',
+    subCode: 'MISSING_FORM_FIELDS',
+    statusCode: 400
+  }
+}
+
+const errRegistry = new ErrorRegistry(errors, errorCodes)
+
+// some part of the application throws the error
+const err = errRegistry.newError('VALIDATION_ERROR', 'MISSING_FORM_FIELDS')
+
+// another part of the application catches the error
+if (err.getLogLevel() === 'debug') {
+  console.debug(JSON.stringify(err.toJSON(), null, 2))
+} else {
+  console.error(JSON.stringify(err.toJSON(), null, 2))
+}
+```
 
 # Error Registry API
 
@@ -395,6 +450,7 @@ Generated errors extend the `BaseError` class, which supplies the manipulation m
 - `BaseError#getCausedBy()`
 - `BaseError#getMetadata()`
 - `BaseError#getSafeMetadata()`
+- `BaseError#getLogLevel()`
 
 ## Basic setters
 
@@ -404,6 +460,7 @@ sets the values already.
 - `BaseError#withErrorType(type: string): this`
 - `BaseError#withErrorCode(code: string | number): this`
 - `BaseError#withErrorSubCode(code: string | number): this`
+- `BaseError#withLogLevel(level: string | number): this`
 
 ## Set an error id
 

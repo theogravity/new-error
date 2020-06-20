@@ -13,6 +13,14 @@ export interface HighLevelError {
    * default if a Low Level Error status code is not specified or defined.
    */
   statusCode?: string | number
+
+  /**
+   * A log level to associate with this error type since not all errors
+   * may be considered an 'error' log level type when combined with
+   * a logger. Used as the default if a Low Level Error log level
+   * is not defined.
+   */
+  logLevel?: string | number
 }
 
 /**
@@ -46,6 +54,13 @@ export interface LowLevelErrorDef {
    * Protocol-specific status code, such as an HTTP status code.
    */
   statusCode?: string | number
+
+  /**
+   * A log level to associate with this error type since not all errors
+   * may be considered an 'error' log level type when combined with
+   * a logger.
+   */
+  logLevel?: string | number
 }
 
 /**
@@ -77,6 +92,11 @@ export interface IBaseError {
    * Get the class name of the error
    */
   getErrorName(): string
+  /**
+   * Gets the log level assigned to the error. If a low level code
+   * has a log level defined, it will be used over the high level one.
+   */
+  getLogLevel(): string | number
   /**
    * Returns the high level error code
    */
@@ -155,6 +175,13 @@ export interface IBaseError {
    * @param args
    */
   formatMessage(...args): this
+
+  /**
+   * Assign a log level to the error. Useful if you want to
+   * determine which log level to use when logging the error.
+   * @param {string|number} logLevel
+   */
+  withLogLevel(logLevel: string | number): this
 
   /**
    * Returns a json representation of the error. Assume the data

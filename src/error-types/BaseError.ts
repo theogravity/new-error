@@ -14,12 +14,23 @@ export class BaseError extends ExtendableError implements IBaseError {
   protected _causedBy: any
   protected _safeMetadata: Record<string, any>
   protected _metadata: Record<string, any>
+  protected _logLevel: string | number
 
   constructor (message: string) {
     super(message)
 
     this._safeMetadata = {}
     this._metadata = {}
+  }
+
+  /**
+   * Assign a log level to the error. Useful if you want to
+   * determine which log level to use when logging the error.
+   * @param {string|number} logLevel
+   */
+  withLogLevel (logLevel: string | number) {
+    this._logLevel = logLevel
+    return this
   }
 
   /**
@@ -56,6 +67,13 @@ export class BaseError extends ExtendableError implements IBaseError {
   withErrorSubCode (subCode: string | number) {
     this._subCode = subCode
     return this
+  }
+
+  /**
+   * Gets the log level assigned to the error
+   */
+  getLogLevel () {
+    return this._logLevel
   }
 
   /**
