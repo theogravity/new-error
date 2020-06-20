@@ -109,7 +109,6 @@ const errors = {
     * default if a Low Level Error status code is not defined.
     */
     statusCode: 500,
-
     /**
      * (optional) Log level string / number to associate with this error.
      * Useful if you want to use your logging system to log the error but
@@ -215,7 +214,8 @@ const err = new InternalServerError({
   type: 'DATABASE_FAILURE',
   message: 'There was a database failure, SQL err code %s',
   subCode: 'DB_0001',
-  statusCode: 500
+  statusCode: 500,
+  logLevel: 'error'
 })
 
 console.log(err.formatMessage('SQL_1234').toJSON())
