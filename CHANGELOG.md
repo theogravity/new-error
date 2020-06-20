@@ -1,3 +1,11 @@
+## 1.0.13 - Sat Jun 20 2020 03:22:14
+
+**Contributor:** Theo Gravity
+
+- Update README.md [skip ci]
+
+Add another example for log level.
+
 ## 1.0.12 - Wed Jun 03 2020 03:54:55
 
 **Contributor:** Theo Gravity
