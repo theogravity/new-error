@@ -664,8 +664,7 @@ Produces:
 
 ### Deserialization is not perfect
 
-- The serialized output may or may not include the `name` property (if using `toJSONSafe()`) that would be able to 
-hydrate it back into a specific error instance.
+- If the serialized output lacks the `name` property (not present when using `toJSONSafe()`), then only a `BaseError` instance can be returned.
 - The metadata is squashed in the serialized output that information is required to separate them.
 - It is difficult to determine the original type / structure of the `causedBy` data. As a result, it will be copied as-is.
 
@@ -680,7 +679,7 @@ an untrusted party.
  
 ## `ErrorRegistry#fromJSON()` method
 
-This method will attempt to deserialize into a registered error type. If it is unable to, a `BaseError` instance is
+This method will attempt to deserialize into a registered error type via the `name` property. If it is unable to, a `BaseError` instance is
 returned instead.
 
 `ErrorRegistry#fromJSON(data: object, [options]: DeserializeOpts): IBaseError`
@@ -731,6 +730,7 @@ const data = {
     'subCode': 'DB_0001',
     'message': 'test message',
     'meta': { 'safeData': 'test454', 'test': 'test123' },
+    // maps to className in the high level error def
     'name': 'InternalServerError',
     'statusCode': 500,
     'causedBy': 'test',
