@@ -1,3 +1,9 @@
+## 1.1.2 - Mon Sep 21 2020 04:13:44
+
+**Contributor:** Theo Gravity
+
+- Fix README.md
+
 ## 1.1.1 - Mon Sep 21 2020 03:57:31
 
 **Contributor:** Theo Gravity
