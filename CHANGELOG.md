@@ -3,6 +3,8 @@
 **Contributor:** Theo Gravity
 
 - Add deserialization support (#7)
+- Include `logLevel` as part of `toJSON()`
+- Fix interface definitions and examples
 
 Please read the README section on the limitations and security issues relating to deserialization.
 
