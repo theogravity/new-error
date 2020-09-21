@@ -1,3 +1,11 @@
+## 1.1.1 - Mon Sep 21 2020 03:57:31
+
+**Contributor:** Theo Gravity
+
+- Add deserialization support (#7)
+
+Please read the README section on the limitations and security issues relating to deserialization.
+
 ## 1.0.13 - Sat Jun 20 2020 03:22:14
 
 **Contributor:** Theo Gravity
