@@ -738,7 +738,7 @@ const data = {
 }
 
 // err should be an instance of InternalServerError
-const err = errRegistry.toJSON(data, {
+const err = errRegistry.fromJSON(data, {
   safeMetadataFields: {
     safeData: true
   }
