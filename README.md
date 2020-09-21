@@ -22,6 +22,7 @@ of errors to a client or for internal development / logs.
 # Table of Contents 
 
 <!-- TOC -->
+
 - [Motivation / Error handling use-cases](#motivation--error-handling-use-cases)
 - [Installation](#installation)
 - [Examples](#examples)
@@ -40,6 +41,7 @@ of errors to a client or for internal development / logs.
 - [Error API](#error-api)
   - [Getters](#getters)
   - [Basic setters](#basic-setters)
+  - [Static methods](#static-methods)
   - [Set an error id](#set-an-error-id)
   - [Attaching errors](#attaching-errors)
   - [Format messages](#format-messages)
@@ -49,6 +51,13 @@ of errors to a client or for internal development / logs.
   - [Serializing errors](#serializing-errors)
     - [Safe serialization](#safe-serialization)
     - [Internal serialization](#internal-serialization)
+- [Deserialization](#deserialization)
+  - [Issues with deserialization](#issues-with-deserialization)
+    - [Deserialization is not perfect](#deserialization-is-not-perfect)
+    - [potential security issues with deserialization:](#potential-security-issues-with-deserialization)
+  - [`ErrorRegistry#fromJSON()` method](#errorregistryfromjson-method)
+  - [`static BaseError#fromJSON()` method](#static-baseerrorfromjson-method)
+  - [Stand-alone instance-based deserialization](#stand-alone-instance-based-deserialization)
 
 <!-- TOC END -->
 
@@ -462,6 +471,10 @@ sets the values already.
 - `BaseError#withErrorSubCode(code: string | number): this`
 - `BaseError#withLogLevel(level: string | number): this`
 
+## Static methods
+
+- `static BaseError#fromJSON(data: object, options?: object): BaseError`
+
 ## Set an error id
 
 Method: `BaseError#withErrorId(errId: string)`
@@ -572,12 +585,12 @@ Generates output that would be safe for client consumption.
 - Omits `message`
 - Omits `causedBy`
 - Omits `type`
+- Omits `logLevel`
 - Omits the stack trace
 - Omits any data defined via `BaseError#withMetadata()`
 
 ```typescript
 err.withSafeMetadata({
-  errorId: 'err-12345',
   requestId: 'req-12345'
 })
 // you can remove additional fields by specifying property names in an array
@@ -592,7 +605,7 @@ Produces:
   code: 'ERR_INT_500',
   subCode: 'DB_0001',
   statusCode: 500,
-  meta: { errorId: 'err-12345', requestId: 'req-12345' }
+  meta: { requestId: 'req-12345' }
 }
 ```
 
@@ -611,7 +624,7 @@ Generates output that would be suitable for internal use.
 
 ```typescript
 err.withSafeMetadata({
-  errorId: 'err-12345',
+  reqId: 'req-12345',
 }).withMetadata({
   email: 'test@test.com'
 })
@@ -642,5 +655,155 @@ Produces:
     '    at Object.nodeDevHook [as .ts] (new-error/node_modules/ts-node-dev/lib/hook.js:61:7)\n' +
     '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
     '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
+}
+```
+
+# Deserialization
+
+## Issues with deserialization
+
+### Deserialization is not perfect
+
+- The serialized output may or may not include the `name` property (if using `toJSONSafe()`) that would be able to 
+hydrate it back into a specific error instance.
+- The metadata is squashed in the serialized output that information is required to separate them.
+- It is difficult to determine the original type / structure of the `causedBy` data. As a result, it will be copied as-is.
+
+### potential security issues with deserialization:
+
+- You need to be able to trust the data you're deserializing as the serialized data can be modified in various ways by
+an untrusted party.
+- The deserialization implementation does not perform `JSON.parse()` as `JSON.parse()` in its raw form is susceptible to
+[prototype pollution](https://medium.com/intrinsic/javascript-prototype-poisoning-vulnerabilities-in-the-wild-7bc15347c96)
+ if the parse function does not have a proper sanitization function. It is up to the developer to properly 
+ trust / sanitize / parse the data.
+ 
+## `ErrorRegistry#fromJSON()` method
+
+This method will attempt to deserialize into a registered error type. If it is unable to, a `BaseError` instance is
+returned instead.
+
+`ErrorRegistry#fromJSON(data: object, [options]: DeserializeOpts): IBaseError`
+
+- `data`: Data that is the output of `BaseError#toJSON()`. The data must be an object, not a string.
+- `options`: Optional deserialization options.
+
+```typescript
+interface DeserializeOpts {
+  /**
+   * Fields from meta to pluck as a safe metadata field
+   */
+  safeMetadataFields?: {
+    // the value must be set to true.
+    [key: string]: true
+  }
+}
+```
+
+Returns a `BaseError` instance or an instance of a registered error type.
+
+```typescript
+import { ErrorRegistry } from 'new-error'
+
+const errors = {
+  INTERNAL_SERVER_ERROR: {
+    className: 'InternalServerError',
+    code: 'ERR_INT_500',
+    statusCode: 500,
+    logLevel: 'error'
+  }
+}
+
+const errorCodes = {
+  DATABASE_FAILURE: {
+    message: 'There was a database failure, SQL err code %s',
+    subCode: 'DB_0001',
+    statusCode: 500,
+    logLevel: 'error'
+  }
+}
+
+const errRegistry = new ErrorRegistry(errors, errorCodes)
+
+const data = {
+    'errId': 'err-123',
+    'code': 'ERR_INT_500',
+    'subCode': 'DB_0001',
+    'message': 'test message',
+    'meta': { 'safeData': 'test454', 'test': 'test123' },
+    'name': 'InternalServerError',
+    'statusCode': 500,
+    'causedBy': 'test',
+    'stack': 'abcd'
+}
+
+// err should be an instance of InternalServerError
+const err = errRegistry.toJSON(data, {
+  safeMetadataFields: {
+    safeData: true
+  }
+})
+```
+
+## `static BaseError#fromJSON()` method
+
+If you are not using the registry, you can deserialize using this method. This also applies to any class that extends
+`BaseError`.
+
+`static BaseError#fromJSON(data: object, [options]: DeserializeOpts): IBaseError`
+
+- `data`: Data that is the output of `BaseError#toJSON()`. The data must be an object, not a string.
+- `options`: Optional deserialization options.
+
+Returns a `BaseError` instance or an instance of the class that extends it.
+
+```typescript
+import { BaseError } from 'new-error'
+
+// assume we have serialized error data
+const data = {
+  code: 'ERR_INT_500',
+  subCode: 'DB_0001',
+  statusCode: 500,
+  errId: 'err-1234',
+  meta: { requestId: 'req-12345', safeData: '123' }
+}
+
+// deserialize
+// specify meta field assignment - fields that are not assigned will be assumed as withMetadata() type data
+const err = BaseError.fromJSON(data, {
+  // (optional) Fields to pluck from 'meta' to be sent to BaseError#safeMetadataFields()
+  // value must be set to 'true'
+  safeMetadataFields: {
+    safeData: true
+  }
+})
+```
+
+## Stand-alone instance-based deserialization
+
+If the `name` property is present in the serialized data if it was serialized with `toJson()`, you can use a switch 
+to map to an instance:
+
+```typescript
+const data = {
+  // be sure that you trust the source of the deserialized data!
+  // anyone can modify the 'name' property to whatever
+  name: 'InternalServerError',
+  code: 'ERR_INT_500',
+  subCode: 'DB_0001',
+  statusCode: 500,
+  errId: 'err-1234',
+  meta: { requestId: 'req-12345', safeData: '123' }
+}
+
+let err = null
+
+switch (data.name) {
+  case 'InternalServerError':
+    // assume InternalServerError extends BaseError
+    return InternalServerError.fromJSON(data)
+  default:
+    return BaseError.fromJSON(data)
 }
 ```

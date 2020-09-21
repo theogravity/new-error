@@ -123,4 +123,47 @@ describe('BaseRegistryError', () => {
       expect(err.getLogLevel()).toBe('trace')
     })
   })
+
+  describe('Deserialization', () => {
+    it('throws if the data is not an object', () => {
+      // @ts-ignore
+      expect(() => BaseRegistryError.fromJSON('')).toThrowError()
+    })
+
+    it('should deserialize error data', () => {
+      const data = {
+        errId: 'err-123',
+        code: 'ERR_INT_500',
+        subCode: 'DB_0001',
+        message: 'test message',
+        meta: { safe: 'test454', test: 'test123' },
+        name: 'BaseError',
+        statusCode: 500,
+        causedBy: 'test'
+      }
+
+      const err2 = BaseRegistryError.fromJSON(data, {
+        safeMetadataFields: {
+          safe: true
+        }
+      })
+
+      expect(err2.getSafeMetadata()).toEqual({
+        safe: 'test454'
+      })
+
+      expect(err2.toJSON()).toEqual(
+        expect.objectContaining({
+          errId: 'err-123',
+          code: 'ERR_INT_500',
+          subCode: 'DB_0001',
+          message: 'test message',
+          meta: { safe: 'test454', test: 'test123' },
+          name: 'BaseRegistryError',
+          statusCode: 500,
+          causedBy: 'test'
+        })
+      )
+    })
+  })
 })

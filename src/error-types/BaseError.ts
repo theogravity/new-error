@@ -1,6 +1,11 @@
 import { vsprintf } from 'sprintf-js'
 import ExtendableError from 'es6-error'
-import { IBaseError, SerializedError, SerializedErrorSafe } from '../interfaces'
+import {
+  DeserializeOpts,
+  IBaseError,
+  SerializedError,
+  SerializedErrorSafe
+} from '../interfaces'
 
 /**
  * Improved error class.
@@ -209,6 +214,7 @@ export class BaseError extends ExtendableError implements IBaseError {
       type: this._type,
       subCode: this._subCode,
       statusCode: this._statusCode,
+      logLevel: this._logLevel,
       meta: {
         ...this._metadata,
         ...this._safeMetadata
@@ -259,5 +265,89 @@ export class BaseError extends ExtendableError implements IBaseError {
     })
 
     return data
+  }
+
+  /**
+   * Helper method for use with fromJson()
+   * @param errInstance An error instance that extends BaseError
+   * @param {string} data JSON.parse()'d error object from
+   * BaseError#toJSON() or BaseError#toJSONSafe()
+   * @param {DeserializeOpts} [opts] Deserialization options
+   */
+  static copyDeserializationData<
+    T extends IBaseError = IBaseError,
+    U extends DeserializeOpts = DeserializeOpts
+  > (errInstance: T, data: Partial<SerializedError>, opts: U) {
+    if (data.code) {
+      errInstance.withErrorCode(data.code)
+    }
+
+    if (data.subCode) {
+      errInstance.withErrorSubCode(data.subCode)
+    }
+
+    if (data.errId) {
+      errInstance.withErrorId(data.errId)
+    }
+
+    if (data.statusCode) {
+      errInstance.withStatusCode(data.statusCode)
+    }
+
+    if (data.stack) {
+      errInstance.stack = data.stack
+    }
+
+    if (data.logLevel) {
+      errInstance.withLogLevel(data.logLevel)
+    }
+
+    // not possible to know what the underlying causedBy type is
+    // so we can't deserialize to its original representation
+    if (data.causedBy) {
+      errInstance.causedBy(data.causedBy)
+    }
+
+    // if defined, pluck the metadata fields to their respective safe and unsafe counterparts
+    if (data.meta && opts && opts.safeMetadataFields) {
+      Object.keys(data.meta).forEach(key => {
+        if (opts.safeMetadataFields[key]) {
+          errInstance.withSafeMetadata({
+            [key]: data.meta[key]
+          })
+        } else {
+          errInstance.withMetadata({
+            [key]: data.meta[key]
+          })
+        }
+      })
+    } else {
+      errInstance.withMetadata(data.meta)
+    }
+  }
+
+  /**
+   * Deserializes an error into an instance
+   * @param {string} data JSON.parse()'d error object from
+   * BaseError#toJSON() or BaseError#toJSONSafe()
+   * @param {DeserializeOpts} [opts] Deserialization options
+   */
+  static fromJSON<T extends DeserializeOpts = DeserializeOpts> (
+    data: Partial<SerializedError>,
+    opts?: T
+  ): IBaseError {
+    if (!opts) {
+      opts = {} as T
+    }
+
+    if (typeof data !== 'object') {
+      throw new Error(`fromJSON(): Data is not an object.`)
+    }
+
+    let err = new this(data.message)
+
+    this.copyDeserializationData<BaseError, T>(err, data, opts)
+
+    return err
   }
 }

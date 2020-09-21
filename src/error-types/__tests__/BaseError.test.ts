@@ -1,6 +1,7 @@
 /* eslint-env jest */
 
 import { BaseError } from '../BaseError'
+import { DeserializeOpts, SerializedError } from '../../interfaces'
 
 describe('BaseError', () => {
   it('should create an instance', () => {
@@ -170,6 +171,239 @@ describe('BaseError', () => {
     expect(err.toJSONSafe(['name'])).toEqual({
       meta: {},
       name: undefined
+    })
+  })
+
+  describe('Deserialization', () => {
+    it('throws if the data is not an object', () => {
+      // @ts-ignore
+      expect(() => BaseError.fromJSON('')).toThrowError()
+    })
+
+    it('#copyDeserializationData - should work with empty data', () => {
+      const err = new BaseError('test message')
+
+      BaseError.copyDeserializationData(err, {}, {})
+
+      expect(err.toJSON()).toEqual(
+        expect.objectContaining({
+          message: 'test message',
+          meta: {},
+          name: 'BaseError'
+        })
+      )
+    })
+
+    it('#copyDeserializationData - should work with metadata', () => {
+      const err = new BaseError('test message')
+
+      BaseError.copyDeserializationData(
+        err,
+        {
+          meta: {
+            safe: '123',
+            unsafe: '456'
+          }
+        },
+        {
+          safeMetadataFields: {
+            safe: true
+          }
+        }
+      )
+
+      expect(err.getMetadata()).toEqual({
+        unsafe: '456'
+      })
+
+      expect(err.getSafeMetadata()).toEqual({
+        safe: '123'
+      })
+
+      expect(err.toJSON()).toEqual(
+        expect.objectContaining({
+          message: 'test message',
+          name: 'BaseError'
+        })
+      )
+    })
+
+    it('#copyDeserializationData - should copy data to an instance', () => {
+      const err = new BaseError('test message')
+
+      BaseError.copyDeserializationData(
+        err,
+        {
+          errId: 'err-123',
+          code: 'ERR_INT_500',
+          subCode: 'DB_0001',
+          message: 'test message',
+          meta: { safe: 'test454', test: 'test123' },
+          name: 'BaseError',
+          statusCode: 500,
+          causedBy: 'test',
+          stack: 'abcd'
+        },
+        {}
+      )
+
+      expect(err.toJSON()).toEqual(
+        expect.objectContaining({
+          errId: 'err-123',
+          code: 'ERR_INT_500',
+          subCode: 'DB_0001',
+          message: 'test message',
+          meta: { safe: 'test454', test: 'test123' },
+          name: 'BaseError',
+          statusCode: 500,
+          causedBy: 'test'
+        })
+      )
+    })
+
+    it('should deserialize an error without options', () => {
+      const err = new BaseError('test message')
+        .withErrorId('err-123')
+        .withErrorType('DATABASE_FAILURE')
+        .withErrorCode('ERR_INT_500')
+        .withErrorSubCode('DB_0001')
+        .withStatusCode(500)
+        .withLogLevel('error')
+        .withMetadata({
+          test: 'test123'
+        })
+        .withSafeMetadata({
+          safe: 'test454'
+        })
+        .causedBy('test')
+
+      const data = err.toJSON()
+      const err2 = BaseError.fromJSON(data)
+
+      expect(err2.getSafeMetadata()).toEqual({})
+      expect(err2.getMetadata()).toEqual({
+        test: 'test123',
+        safe: 'test454'
+      })
+
+      expect(err2.toJSON()).toEqual(
+        expect.objectContaining({
+          errId: 'err-123',
+          code: 'ERR_INT_500',
+          subCode: 'DB_0001',
+          message: 'test message',
+          meta: { safe: 'test454', test: 'test123' },
+          name: 'BaseError',
+          statusCode: 500,
+          causedBy: 'test'
+        })
+      )
+    })
+
+    it('should deserialize an error with options', () => {
+      const err = new BaseError('test message')
+        .withErrorId('err-123')
+        .withErrorType('DATABASE_FAILURE')
+        .withErrorCode('ERR_INT_500')
+        .withErrorSubCode('DB_0001')
+        .withStatusCode(500)
+        .withLogLevel('error')
+        .withMetadata({
+          test: 'test123'
+        })
+        .withSafeMetadata({
+          safe: 'test454'
+        })
+        .causedBy('test')
+
+      const data = err.toJSON()
+      const err2 = BaseError.fromJSON(data, {
+        safeMetadataFields: {
+          safe: true
+        }
+      })
+
+      expect(err2.getSafeMetadata()).toEqual({
+        safe: 'test454'
+      })
+
+      expect(err2.toJSON()).toEqual(
+        expect.objectContaining({
+          errId: 'err-123',
+          code: 'ERR_INT_500',
+          subCode: 'DB_0001',
+          message: 'test message',
+          meta: { safe: 'test454', test: 'test123' },
+          name: 'BaseError',
+          statusCode: 500,
+          causedBy: 'test'
+        })
+      )
+    })
+
+    it('should be able to override fromJSON()', () => {
+      interface InternalServerErrorOpts extends DeserializeOpts {}
+
+      class InternalServerError extends BaseError {
+        // You can extend DeserializeOpts to add in additional options if you want
+        static fromJSON (
+          data: Partial<SerializedError>,
+          opts: InternalServerErrorOpts
+        ): InternalServerError {
+          if (!opts) {
+            opts = {} as InternalServerErrorOpts
+          }
+
+          if (typeof data === 'string') {
+            throw new Error(
+              `InternalServerError#fromJSON(): Data is not an object.`
+            )
+          }
+
+          let err = new InternalServerError(data.message)
+
+          BaseError.copyDeserializationData<
+            InternalServerError,
+            InternalServerErrorOpts
+          >(err, data, opts)
+
+          return err
+        }
+      }
+
+      const err = new InternalServerError('test message')
+        .withErrorId('err-123')
+        .withErrorType('DATABASE_FAILURE')
+        .withErrorCode('ERR_INT_500')
+        .withErrorSubCode('DB_0001')
+        .withStatusCode(500)
+        .withLogLevel('error')
+        .withMetadata({
+          test: 'test123'
+        })
+        .withSafeMetadata({
+          safe: 'test454'
+        })
+
+      const data = err.toJSON()
+
+      const err2 = InternalServerError.fromJSON(data, {
+        safeMetadataFields: {
+          safe: true
+        }
+      })
+
+      expect(err2.toJSON()).toEqual(
+        expect.objectContaining({
+          errId: 'err-123',
+          code: 'ERR_INT_500',
+          subCode: 'DB_0001',
+          message: 'test message',
+          meta: { safe: 'test454', test: 'test123' },
+          name: 'InternalServerError',
+          statusCode: 500
+        })
+      )
     })
   })
 })
