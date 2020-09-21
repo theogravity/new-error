@@ -54,7 +54,7 @@ of errors to a client or for internal development / logs.
 - [Deserialization](#deserialization)
   - [Issues with deserialization](#issues-with-deserialization)
     - [Deserialization is not perfect](#deserialization-is-not-perfect)
-    - [potential security issues with deserialization:](#potential-security-issues-with-deserialization)
+    - [Potential security issues with deserialization](#potential-security-issues-with-deserialization)
   - [`ErrorRegistry#fromJSON()` method](#errorregistryfromjson-method)
   - [`static BaseError#fromJSON()` method](#static-baseerrorfromjson-method)
   - [Stand-alone instance-based deserialization](#stand-alone-instance-based-deserialization)
@@ -669,7 +669,7 @@ hydrate it back into a specific error instance.
 - The metadata is squashed in the serialized output that information is required to separate them.
 - It is difficult to determine the original type / structure of the `causedBy` data. As a result, it will be copied as-is.
 
-### potential security issues with deserialization:
+### Potential security issues with deserialization
 
 - You need to be able to trust the data you're deserializing as the serialized data can be modified in various ways by
 an untrusted party.
