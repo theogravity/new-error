@@ -6,7 +6,8 @@ import {
   SerializedError,
   SerializedErrorSafe,
   HighLevelError,
-  LowLevelError
+  LowLevelError,
+  DeserializeOpts
 } from './interfaces'
 
 export {
@@ -17,5 +18,6 @@ export {
   HighLevelError,
   LowLevelError,
   SerializedError,
-  SerializedErrorSafe
+  SerializedErrorSafe,
+  DeserializeOpts
 }

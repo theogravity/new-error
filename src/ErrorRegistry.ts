@@ -1,5 +1,13 @@
-import { HighLevelErrorInternal, LowLevelErrorInternal } from './interfaces'
+import {
+  DeserializeOpts,
+  HighLevelErrorInternal,
+  IBaseError,
+  LowLevelErrorInternal,
+  SerializedError
+} from './interfaces'
+
 import { BaseRegistryError } from './error-types/BaseRegistryError'
+import { BaseError } from './error-types/BaseError'
 
 /**
  * Contains the definitions for High and Low Level Errors and
@@ -15,6 +23,13 @@ export class ErrorRegistry<
    * High level error definitions
    */
   protected highLevelErrors: Record<keyof HLError, HighLevelErrorInternal>
+
+  /**
+   * A map of high level names to class name
+   * @protected
+   */
+  protected classNameHighLevelNameMap: Record<keyof HLError, string>
+
   /**
    * Cached high level error classes
    */
@@ -22,6 +37,7 @@ export class ErrorRegistry<
     keyof HLError,
     typeof BaseRegistryError
   >
+
   /**
    * Low level error definitions
    */
@@ -30,7 +46,12 @@ export class ErrorRegistry<
   constructor (highLvErrors: HLError, lowLvErrors: LLErrorName) {
     this.highLevelErrors = highLvErrors
     this.lowLevelErrors = {} as any
+    this.classNameHighLevelNameMap = {} as any
     this.highLevelErrorClasses = {} as any
+
+    Object.keys(highLvErrors).forEach(name => {
+      this.classNameHighLevelNameMap[highLvErrors[name].className] = name
+    })
 
     // populate the lowLevelErrors dictionary
     Object.keys(lowLvErrors).forEach(type => {
@@ -125,5 +146,39 @@ export class ErrorRegistry<
       this.getHighLevelError(highLvErrName),
       this.getLowLevelError(lowLvErrName) as LowLevelErrorInternal
     )
+  }
+
+  /**
+   * Deserializes data into an error
+   * @param {string} data JSON.parse()'d error object from
+   * BaseError#toJSON() or BaseError#toJSONSafe()
+   * @param {DeserializeOpts} [opts] Deserialization options
+   */
+  fromJSON<
+    T extends IBaseError = IBaseError,
+    U extends DeserializeOpts = DeserializeOpts
+  > (data: Partial<SerializedError>, opts?: U): T {
+    if (typeof data !== 'object') {
+      throw new Error(`fromJSON(): Data is not an object.`)
+    }
+
+    // data.name is the class name - we need to resolve it to the name of the high level class definition
+    const errorName = this.classNameHighLevelNameMap[data.name]
+
+    // use the lookup results to see if we can get the class definition of the high level error
+    const highLevelDef = this.getHighLevelError(errorName as keyof HLError)
+
+    let err = null
+
+    // Can deserialize into an custom error instance class
+    if (highLevelDef) {
+      // get the class for the error type
+      const C = this.getClass(errorName as keyof HLError)
+      err = C.fromJSON(data, opts)
+    } else {
+      err = BaseError.fromJSON(data, opts)
+    }
+
+    return err
   }
 }

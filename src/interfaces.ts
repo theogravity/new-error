@@ -1,6 +1,8 @@
 /**
  * A High Level Error definition defined by the user
  */
+import { BaseError } from './error-types/BaseError'
+
 export interface HighLevelError {
   /**
    * A user-friendly code to show to a client that represents the high
@@ -170,6 +172,12 @@ export interface IBaseError {
   withSafeMetadata(safeMetadata: Record<string, any>): this
 
   /**
+   * Set a protocol-specific status code
+   * @param statusCode
+   */
+  withStatusCode(statusCode: any): this
+
+  /**
    * Replaces printf flags in an error message, if present.
    * @see https://www.npmjs.com/package/sprintf-js
    * @param args
@@ -190,13 +198,18 @@ export interface IBaseError {
    * consumption.
    * @param {string[]} [fieldsToOmit] An array of root properties to omit from the output
    */
-  toJSON(fieldsToOmit: string[]): Partial<SerializedError>
+  toJSON(fieldsToOmit?: string[]): Partial<SerializedError>
   /**
    * Returns a safe json representation of the error (error stack / causedBy is removed).
    * This should be used for display to a user / pass to a client.
    * @param {string[]} [fieldsToOmit] An array of root properties to omit from the output
    */
-  toJSONSafe(fieldsToOmit: string[]): Partial<SerializedErrorSafe>
+  toJSONSafe(fieldsToOmit?: string[]): Partial<SerializedErrorSafe>
+
+  /**
+   * Stack trace
+   */
+  stack?: any
 }
 
 /**
@@ -204,6 +217,10 @@ export interface IBaseError {
  * end-user.
  */
 export interface SerializedErrorSafe {
+  /**
+   * The error id
+   */
+  errId?: string
   /**
    * The high level code to show to a client.
    */
@@ -216,6 +233,12 @@ export interface SerializedErrorSafe {
    * Protocol-specific status code, such as an HTTP status code.
    */
   statusCode?: string | number
+
+  /**
+   * Assigned log level
+   */
+  logLevel?: string | number
+
   /**
    * User-defined metadata
    */
@@ -246,4 +269,11 @@ export interface SerializedError extends SerializedErrorSafe {
    * If applicable, the original error that was thrown
    */
   causedBy?: any
+}
+
+export interface DeserializeOpts {
+  /**
+   * Fields from meta to pluck as a safe metadata field
+   */
+  safeMetadataFields?: Record<string, true>
 }

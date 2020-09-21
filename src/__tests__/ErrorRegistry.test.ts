@@ -91,4 +91,53 @@ describe('ErrorRegistry', () => {
       registry.newError('INTERNAL_SERVER_ERROR', 'invalid')
     ).toThrowError(/Low level error/)
   })
+
+  describe('deserialization', () => {
+    it('should throw if data is not an object', () => {
+      const registry = new ErrorRegistry(errors, errorCodes)
+
+      // @ts-ignore
+      expect(() => registry.fromJSON('')).toThrowError()
+    })
+
+    it('should deserialize into a custom error', () => {
+      const registry = new ErrorRegistry(errors, errorCodes)
+
+      const data = {
+        errId: 'err-123',
+        code: 'ERR_INT_500',
+        subCode: 'DB_0001',
+        message: 'test message',
+        meta: { safe: 'test454', test: 'test123' },
+        name: 'InternalServerError',
+        statusCode: 500,
+        causedBy: 'test',
+        stack: 'abcd'
+      }
+
+      const err = registry.fromJSON(data)
+
+      expect(registry.instanceOf(err, 'INTERNAL_SERVER_ERROR')).toBe(true)
+    })
+
+    it('should deserialize into a base error', () => {
+      const registry = new ErrorRegistry(errors, errorCodes)
+
+      const data = {
+        errId: 'err-123',
+        code: 'ERR_INT_500',
+        subCode: 'DB_0001',
+        message: 'test message',
+        meta: { safe: 'test454', test: 'test123' },
+        name: 'invalid',
+        statusCode: 500,
+        causedBy: 'test',
+        stack: 'abcd'
+      }
+
+      const err = registry.fromJSON(data)
+
+      expect(registry.instanceOf(err, 'INTERNAL_SERVER_ERROR')).toBe(false)
+    })
+  })
 })

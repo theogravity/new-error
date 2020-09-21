@@ -1,4 +1,9 @@
-import { BaseError } from '../index'
+import {
+  BaseError,
+  DeserializeOpts,
+  IBaseError,
+  SerializedError
+} from '../index'
 import { HighLevelError, LowLevelErrorInternal } from '../interfaces'
 
 /**
@@ -36,5 +41,37 @@ export class BaseRegistryError extends BaseError {
     if (lowLevelErrorDef.logLevel) {
       this.withLogLevel(lowLevelErrorDef.logLevel)
     }
+  }
+
+  /**
+   * Deserializes an error into an instance
+   * @param {string} data JSON.parse()'d error object from
+   * BaseError#toJSON() or BaseError#toJSONSafe()
+   * @param {DeserializeOpts} [opts] Deserialization options
+   */
+  static fromJSON<T extends DeserializeOpts = DeserializeOpts> (
+    data: Partial<SerializedError>,
+    opts?: T
+  ): IBaseError {
+    if (!opts) {
+      opts = {} as T
+    }
+
+    if (typeof data !== 'object') {
+      throw new Error(`fromJSON(): Data is not an object.`)
+    }
+
+    let err = new this(
+      {
+        code: data.code
+      },
+      {
+        message: data.message
+      }
+    )
+
+    this.copyDeserializationData<IBaseError, T>(err, data, opts)
+
+    return err
   }
 }
