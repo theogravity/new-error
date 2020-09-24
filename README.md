@@ -807,3 +807,7 @@ switch (data.name) {
     return BaseError.fromJSON(data)
 }
 ```
+
+# Looking for production-grade env variable / configuration management?
+
+Check out https://github.com/theogravity/configurity
