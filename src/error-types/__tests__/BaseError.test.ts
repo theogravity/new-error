@@ -153,6 +153,18 @@ describe('BaseError', () => {
     expect(obj.causedBy).not.toBeDefined()
   })
 
+  it('should omit fields in toJSON() via config', () => {
+    const cause = new Error('test caused by')
+    const err = new BaseError('test message', {
+      toJSONFieldsToOmit: ['causedBy']
+    })
+    err.causedBy(cause)
+
+    const obj = err.toJSON()
+
+    expect(obj.causedBy).not.toBeDefined()
+  })
+
   it('should not show stack trace or causedBy when using toJSONSafe()', () => {
     const cause = new Error('test caused by')
     const err = new BaseError('test message')
@@ -172,6 +184,32 @@ describe('BaseError', () => {
       meta: {},
       name: undefined
     })
+  })
+
+  it('should omit fields in toJSONSafe() via config', () => {
+    const err = new BaseError('test message', {
+      toJSONSafeFieldsToOmit: ['errId']
+    }).withErrorId('test-id')
+
+    expect(err.toJSONSafe().errId).not.toBeDefined()
+  })
+
+  it('should update config', () => {
+    const err = new BaseError('test message', {
+      toJSONSafeFieldsToOmit: ['errId']
+    }).withErrorId('test-id')
+
+    expect(err.toJSONSafe().errId).not.toBeDefined()
+
+    err.setConfig({})
+
+    expect(err.toJSONSafe().errId).toBeDefined()
+  })
+
+  it('should default to an empty object if null is passed to the config option', () => {
+    const err = new BaseError('test message', null)
+
+    expect(err.getConfig()).toBeDefined()
   })
 
   describe('Deserialization', () => {

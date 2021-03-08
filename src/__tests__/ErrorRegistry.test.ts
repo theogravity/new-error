@@ -92,6 +92,35 @@ describe('ErrorRegistry', () => {
     ).toThrowError(/Low level error/)
   })
 
+  it('should create an error instance with base error config', () => {
+    const registry = new ErrorRegistry(errors, errorCodes, {
+      baseErrorConfig: {
+        toJSONFieldsToOmit: ['errId'],
+        toJSONSafeFieldsToOmit: ['errId']
+      }
+    })
+
+    const err = registry
+      .newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+      .withErrorId('test-id')
+
+    const json = err.toJSON()
+    const jsonSafe = err.toJSONSafe()
+
+    expect(json.errId).not.toBeDefined()
+    expect(jsonSafe.errId).not.toBeDefined()
+
+    const err2 = registry
+      .newBareError('INTERNAL_SERVER_ERROR', 'test')
+      .withErrorId('test-id')
+
+    const json2 = err2.toJSON()
+    const jsonSafe2 = err2.toJSONSafe()
+
+    expect(json2.errId).not.toBeDefined()
+    expect(jsonSafe2.errId).not.toBeDefined()
+  })
+
   describe('deserialization', () => {
     it('should throw if data is not an object', () => {
       const registry = new ErrorRegistry(errors, errorCodes)

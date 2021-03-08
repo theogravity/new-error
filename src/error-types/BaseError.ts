@@ -3,6 +3,7 @@ import ExtendableError from 'es6-error'
 import {
   DeserializeOpts,
   IBaseError,
+  IBaseErrorConfig,
   SerializedError,
   SerializedErrorSafe
 } from '../interfaces'
@@ -20,12 +21,14 @@ export class BaseError extends ExtendableError implements IBaseError {
   protected _safeMetadata: Record<string, any>
   protected _metadata: Record<string, any>
   protected _logLevel: string | number
+  protected _config: IBaseErrorConfig
 
-  constructor (message: string) {
+  constructor (message: string, config: IBaseErrorConfig = {}) {
     super(message)
 
     this._safeMetadata = {}
     this._metadata = {}
+    this._config = config || {}
   }
 
   /**
@@ -145,6 +148,20 @@ export class BaseError extends ExtendableError implements IBaseError {
   }
 
   /**
+   * Gets the error config
+   */
+  getConfig (): IBaseErrorConfig {
+    return this._config
+  }
+
+  /**
+   * Sets the error config
+   */
+  setConfig (config: IBaseErrorConfig) {
+    this._config = config
+  }
+
+  /**
    * Replaces sprintf() flags in an error message, if present.
    * @see https://www.npmjs.com/package/sprintf-js
    * @param args
@@ -234,6 +251,10 @@ export class BaseError extends ExtendableError implements IBaseError {
       delete data[item]
     })
 
+    this._config.toJSONFieldsToOmit?.forEach(item => {
+      delete data[item]
+    })
+
     return data
   }
 
@@ -261,6 +282,10 @@ export class BaseError extends ExtendableError implements IBaseError {
     })
 
     fieldsToOmit.forEach(item => {
+      delete data[item]
+    })
+
+    this._config.toJSONSafeFieldsToOmit?.forEach(item => {
       delete data[item]
     })
 
@@ -341,10 +366,10 @@ export class BaseError extends ExtendableError implements IBaseError {
     }
 
     if (typeof data !== 'object') {
-      throw new Error(`fromJSON(): Data is not an object.`)
+      throw new Error('fromJSON(): Data is not an object.')
     }
 
-    let err = new this(data.message)
+    const err = new this(data.message)
 
     this.copyDeserializationData<BaseError, T>(err, data, opts)
 
