@@ -1,3 +1,11 @@
+## 1.2.4 - Mon Mar 08 2021 22:05:16
+
+**Contributor:** Theo Gravity
+
+- Update readme
+
+Fix handler example, add config usage
+
 ## 1.2.3 - Mon Mar 08 2021 21:59:38
 
 **Contributor:** Theo Gravity
