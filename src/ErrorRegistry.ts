@@ -2,6 +2,7 @@ import {
   DeserializeOpts,
   HighLevelErrorInternal,
   IBaseError,
+  IErrorRegistryConfig,
   LowLevelErrorInternal,
   SerializedError
 } from './interfaces'
@@ -43,11 +44,21 @@ export class ErrorRegistry<
    */
   protected lowLevelErrors: LLError
 
-  constructor (highLvErrors: HLError, lowLvErrors: LLErrorName) {
+  /**
+   * Error registry configuration
+\   */
+  protected _config: IErrorRegistryConfig
+
+  constructor (
+    highLvErrors: HLError,
+    lowLvErrors: LLErrorName,
+    config: IErrorRegistryConfig = {}
+  ) {
     this.highLevelErrors = highLvErrors
     this.lowLevelErrors = {} as any
     this.classNameHighLevelNameMap = {} as any
     this.highLevelErrorClasses = {} as any
+    this._config = config
 
     Object.keys(highLvErrors).forEach(name => {
       this.classNameHighLevelNameMap[highLvErrors[name].className] = name
@@ -122,9 +133,13 @@ export class ErrorRegistry<
     message: string
   ): BaseRegistryError {
     const C = this.getClass(highLvErrName)
-    return new C(this.getHighLevelError(highLvErrName), {
-      message
-    })
+    return new C(
+      this.getHighLevelError(highLvErrName),
+      {
+        message
+      },
+      this._config.baseErrorConfig
+    )
   }
 
   /**
@@ -144,7 +159,8 @@ export class ErrorRegistry<
     const C = this.getClass(highLvErrName)
     return new C(
       this.getHighLevelError(highLvErrName),
-      this.getLowLevelError(lowLvErrName) as LowLevelErrorInternal
+      this.getLowLevelError(lowLvErrName) as LowLevelErrorInternal,
+      this._config.baseErrorConfig
     )
   }
 

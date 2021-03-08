@@ -37,6 +37,30 @@ describe('BaseRegistryError', () => {
     expect(err.stack).toBeDefined()
   })
 
+  it('should create an instance with config options', () => {
+    const err = new BaseRegistryError(
+      {
+        code: 'TEST_ERR',
+        statusCode: 300
+      },
+      {
+        type: 'LOW_LEVEL_TYPE',
+        statusCode: 400,
+        subCode: 'SUB_CODE_ERR',
+        message: 'This is a test error'
+      },
+      {
+        toJSONFieldsToOmit: ['errId'],
+        toJSONSafeFieldsToOmit: ['code']
+      }
+    )
+
+    err.withErrorId('err-id')
+
+    expect(err.toJSON().errId).not.toBeDefined()
+    expect(err.toJSONSafe().code).not.toBeDefined()
+  })
+
   describe('error codes', () => {
     it('should use the default high level error code', () => {
       const err = new BaseRegistryError(

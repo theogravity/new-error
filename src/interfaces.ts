@@ -1,7 +1,6 @@
 /**
  * A High Level Error definition defined by the user
  */
-import { BaseError } from './error-types/BaseError'
 
 export interface HighLevelError {
   /**
@@ -90,43 +89,63 @@ export interface IBaseError {
    * Get the instance-specific error id
    */
   getErrorId(): string
+
   /**
    * Get the class name of the error
    */
   getErrorName(): string
+
   /**
    * Gets the log level assigned to the error. If a low level code
    * has a log level defined, it will be used over the high level one.
    */
   getLogLevel(): string | number
+
   /**
    * Returns the high level error code
    */
   getCode(): string | number
+
   /**
    * Returns the low level error code
    */
   getSubCode(): string | number
+
   /**
    * Returns the status code.
    */
   getStatusCode(): string | number
+
   /**
    * Get the low level error type
    */
   getErrorType(): string
+
   /**
    * Returns the attached error
    */
   getCausedBy(): any
+
   /**
    * Returns metadata set by withMetadata()
    */
   getMetadata(): Record<string, any>
+
   /**
    * Returns metadata set by withSafeMetadata()
    */
   getSafeMetadata(): Record<string, any>
+
+  /**
+   * Gets the configuration options
+   */
+  getConfig(): IBaseErrorConfig
+
+  /**
+   * Sets configuration options
+   */
+  setConfig(config: IBaseErrorConfig): void
+
   /**
    * Attach the original error that was thrown, if available
    * @param {Error} error
@@ -210,6 +229,30 @@ export interface IBaseError {
    * Stack trace
    */
   stack?: any
+}
+
+/**
+ * Configuration options for the BaseError class
+ */
+export interface IBaseErrorConfig {
+  /**
+   * A list of fields to always omit when calling toJSON
+   */
+  toJSONFieldsToOmit?: string[]
+  /**
+   * A list of fields to always omit when calling toJSONSafe
+   */
+  toJSONSafeFieldsToOmit?: string[]
+}
+
+/**
+ * Configuration options for the ErrorRegistry class
+ */
+export interface IErrorRegistryConfig {
+  /**
+   * Options when creating a new BaseError
+   */
+  baseErrorConfig?: IBaseErrorConfig
 }
 
 /**
