@@ -1,3 +1,11 @@
+## 1.2.3 - Mon Mar 08 2021 21:59:38
+
+**Contributor:** Theo Gravity
+
+- Add toJSON / toJSONSafe post-processing handler options (#10)
+
+You can now perform post-processing on serialized data via `onPreToJSONData` / `onPreToJSONDataSafe` options. See readme for more details.
+
 ## 1.2.2 - Mon Mar 08 2021 21:06:07
 
 **Contributor:** Theo Gravity

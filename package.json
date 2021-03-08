@@ -1,6 +1,6 @@
 {
   "name": "new-error",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "A production-grade error creation and serialization library designed for Typescript",
   "main": "build/index.js",
   "types": "build/index.d.ts",
