@@ -1,3 +1,9 @@
+## 1.2.5 - Mon Mar 08 2021 22:54:45
+
+**Contributor:** Theo Gravity
+
+- Fix bug where specifying something other than an array for toJSON/toJSONSafe throws
+
 ## 1.2.4 - Mon Mar 08 2021 22:05:16
 
 **Contributor:** Theo Gravity
