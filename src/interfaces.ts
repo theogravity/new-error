@@ -243,6 +243,10 @@ export interface IBaseErrorConfig {
    * A list of fields to always omit when calling toJSONSafe
    */
   toJSONSafeFieldsToOmit?: string[]
+  /**
+   * If the metadata has no data defined, remove the `meta` property on `toJSON` / `toJSONSafe`
+   */
+  omitEmptyMetadata?: boolean
 }
 
 /**
