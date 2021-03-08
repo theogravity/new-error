@@ -1,3 +1,11 @@
+## 1.2.1 - Mon Mar 08 2021 20:33:41
+
+**Contributor:** Theo Gravity
+
+- Add configuration options for ErrorRegistry / BaseError (#8)
+
+New configuration options have been added to the ErrorRegistry and BaseError. See readme for more details.
+
 ## 1.1.2 - Mon Sep 21 2020 04:13:44
 
 **Contributor:** Theo Gravity
