@@ -231,6 +231,13 @@ describe('BaseError', () => {
     expect(err.toJSONSafe().errId).toBeDefined()
   })
 
+  it('should not throw if toJSON / toJSONSafe is not defined with an omit array', () => {
+    const err = new BaseError('test message')
+
+    expect(() => err.toJSON(null)).not.toThrow()
+    expect(() => err.toJSONSafe(null)).not.toThrow()
+  })
+
   it('should default to an empty object if null is passed to the config option', () => {
     const err = new BaseError('test message', null)
 

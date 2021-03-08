@@ -255,7 +255,7 @@ export class BaseError extends ExtendableError implements IBaseError {
       delete data.meta
     }
 
-    if (this._config.onPreToJSONData) {
+    if (typeof this._config.onPreToJSONData === 'function') {
       data = this._config.onPreToJSONData(data)
     }
 
@@ -266,7 +266,7 @@ export class BaseError extends ExtendableError implements IBaseError {
       }
     })
 
-    fieldsToOmit.forEach(item => {
+    fieldsToOmit?.forEach(item => {
       delete data[item]
     })
 
@@ -304,11 +304,11 @@ export class BaseError extends ExtendableError implements IBaseError {
       }
     })
 
-    if (this._config.onPreToJSONSafeData) {
+    if (typeof this._config.onPreToJSONSafeData === 'function') {
       data = this._config.onPreToJSONSafeData(data)
     }
 
-    fieldsToOmit.forEach(item => {
+    fieldsToOmit?.forEach(item => {
       delete data[item]
     })
 
