@@ -55,6 +55,7 @@ of errors to a client or for internal development / logs.
   - [Serializing errors](#serializing-errors)
     - [Safe serialization](#safe-serialization)
     - [Internal serialization](#internal-serialization)
+    - [Post-processing handlers](#post-processing-handlers)
 - [Deserialization](#deserialization)
   - [Issues with deserialization](#issues-with-deserialization)
     - [Deserialization is not perfect](#deserialization-is-not-perfect)
@@ -490,6 +491,16 @@ interface IBaseErrorConfig {
    * If the metadata has no data defined, remove the `meta` property on `toJSON` / `toJSONSafe`.
    */
   omitEmptyMetadata?: boolean
+  /**
+   * A function to run against the computed data when calling `toJSON`. This is called prior
+   * to field omission. If defined, must return the data back.
+   */
+  onPreToJSONData?: (data: Partial<SerializedError>) => Partial<SerializedError>
+  /**
+   * A function to run against the computed safe data when calling `toJSONSafe`. This is called
+   * prior to field omission. If defined, must return the data back.
+   */
+  onPreToJSONSafeData?: (data: Partial<SerializedErrorSafe>) => Partial<SerializedErrorSafe>
 }
 ```
 
@@ -703,6 +714,36 @@ Produces:
     '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
     '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
 }
+```
+
+### Post-processing handlers
+
+The `BaseError` config `onPreToJSONData` / `onPreToJSONSafeData` options allow post-processing of the data. This is useful if you want to decorate your data for all new
+errors created.
+
+```ts
+const errRegistry = new ErrorRegistry(errors, errorCodes, {
+  // called when toJSON is called
+  onPreToJSONData: (data) => {
+    // we want all new errors to contain a date field
+    data.date = new Date().tostring()
+
+    // add some additional metadata
+    // data.meta might be empty if omitEmptyMetadata is enabled
+    if (data.meta) {
+      data.meta.moreData = 'test'
+    }
+    
+    return data
+  }
+})
+
+const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+  .setErrorId('err-1234')
+  .formatMessage('SQL_1234')
+
+// should produce the standard error structure, but with the new fields added
+console.log(err.toJSON())
 ```
 
 # Deserialization

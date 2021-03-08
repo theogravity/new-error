@@ -230,7 +230,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    * @param {string[]} [fieldsToOmit] An array of root properties to omit from the output
    */
   toJSON (fieldsToOmit: string[] = []): Partial<SerializedError> {
-    const data = {
+    let data: Partial<SerializedError> = {
       errId: this._errId,
       name: this.name,
       code: this._code,
@@ -253,6 +253,10 @@ export class BaseError extends ExtendableError implements IBaseError {
       this._config.omitEmptyMetadata
     ) {
       delete data.meta
+    }
+
+    if (this._config.onPreToJSONData) {
+      data = this._config.onPreToJSONData(data)
     }
 
     Object.keys(data).forEach(item => {
@@ -279,7 +283,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    * @param {string[]} [fieldsToOmit] An array of root properties to omit from the output
    */
   toJSONSafe (fieldsToOmit: string[] = []): Partial<SerializedErrorSafe> {
-    const data = {
+    let data: Partial<SerializedErrorSafe> = {
       errId: this._errId,
       code: this._code,
       subCode: this._subCode,
@@ -299,6 +303,10 @@ export class BaseError extends ExtendableError implements IBaseError {
         delete data[item]
       }
     })
+
+    if (this._config.onPreToJSONSafeData) {
+      data = this._config.onPreToJSONSafeData(data)
+    }
 
     fieldsToOmit.forEach(item => {
       delete data[item]
