@@ -1,3 +1,11 @@
+## 1.2.2 - Mon Mar 08 2021 21:06:07
+
+**Contributor:** Theo Gravity
+
+- Add option to not include empty metadata on serialization (#9)
+
+This adds `omitEmptyMetadata` to the `BaseError` configuration.
+
 ## 1.2.1 - Mon Mar 08 2021 20:33:41
 
 **Contributor:** Theo Gravity
