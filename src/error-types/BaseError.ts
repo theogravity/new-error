@@ -22,12 +22,16 @@ export class BaseError extends ExtendableError implements IBaseError {
   protected _metadata: Record<string, any>
   protected _logLevel: string | number
   protected _config: IBaseErrorConfig
+  protected _hasMetadata: boolean
+  protected _hasSafeMetadata: boolean
 
   constructor (message: string, config: IBaseErrorConfig = {}) {
     super(message)
 
     this._safeMetadata = {}
     this._metadata = {}
+    this._hasMetadata = false
+    this._hasSafeMetadata = false
     this._config = config || {}
   }
 
@@ -186,6 +190,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    * @param {Object} metadata
    */
   withMetadata (metadata: Record<string, any>) {
+    this._hasMetadata = true
     this._metadata = {
       ...this._metadata,
       ...metadata
@@ -208,6 +213,8 @@ export class BaseError extends ExtendableError implements IBaseError {
    * @param {Object} metadata
    */
   withSafeMetadata (metadata: Record<string, any>) {
+    this._hasMetadata = true
+    this._hasSafeMetadata = true
     this._safeMetadata = {
       ...this._safeMetadata,
       ...metadata
@@ -238,6 +245,14 @@ export class BaseError extends ExtendableError implements IBaseError {
       },
       causedBy: this._causedBy,
       stack: this.stack
+    }
+
+    if (
+      !this._hasSafeMetadata &&
+      !this._hasMetadata &&
+      this._config.omitEmptyMetadata
+    ) {
+      delete data.meta
     }
 
     Object.keys(data).forEach(item => {
@@ -272,6 +287,10 @@ export class BaseError extends ExtendableError implements IBaseError {
       meta: {
         ...this._safeMetadata
       }
+    }
+
+    if (!this._hasSafeMetadata && this._config.omitEmptyMetadata) {
+      delete data.meta
     }
 
     Object.keys(data).forEach(item => {
@@ -347,7 +366,7 @@ export class BaseError extends ExtendableError implements IBaseError {
         }
       })
     } else {
-      errInstance.withMetadata(data.meta)
+      errInstance.withMetadata(data.meta || {})
     }
   }
 

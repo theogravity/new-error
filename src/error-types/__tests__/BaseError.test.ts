@@ -156,13 +156,15 @@ describe('BaseError', () => {
   it('should omit fields in toJSON() via config', () => {
     const cause = new Error('test caused by')
     const err = new BaseError('test message', {
-      toJSONFieldsToOmit: ['causedBy']
+      toJSONFieldsToOmit: ['causedBy'],
+      omitEmptyMetadata: true
     })
     err.causedBy(cause)
 
     const obj = err.toJSON()
 
     expect(obj.causedBy).not.toBeDefined()
+    expect(obj.meta).not.toBeDefined()
   })
 
   it('should not show stack trace or causedBy when using toJSONSafe()', () => {
@@ -188,10 +190,14 @@ describe('BaseError', () => {
 
   it('should omit fields in toJSONSafe() via config', () => {
     const err = new BaseError('test message', {
-      toJSONSafeFieldsToOmit: ['errId']
+      toJSONSafeFieldsToOmit: ['errId'],
+      omitEmptyMetadata: true
     }).withErrorId('test-id')
 
-    expect(err.toJSONSafe().errId).not.toBeDefined()
+    const data = err.toJSONSafe()
+
+    expect(data.errId).not.toBeDefined()
+    expect(data.meta).not.toBeDefined()
   })
 
   it('should update config', () => {
