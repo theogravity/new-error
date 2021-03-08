@@ -200,6 +200,25 @@ describe('BaseError', () => {
     expect(data.meta).not.toBeDefined()
   })
 
+  it('should call transformToJSONFn / transformToJSONSafeFn if defined', () => {
+    const err = new BaseError('test message', {
+      onPreToJSONData: data => {
+        data.blah = 'test'
+        return data
+      },
+      onPreToJSONSafeData: data => {
+        data.blah2 = 'test2'
+        return data
+      }
+    }).withErrorId('test-id')
+
+    const notSafe = err.toJSON()
+    const safe = err.toJSONSafe()
+
+    expect(notSafe.blah).toEqual('test')
+    expect(safe.blah2).toEqual('test2')
+  })
+
   it('should update config', () => {
     const err = new BaseError('test message', {
       toJSONSafeFieldsToOmit: ['errId']

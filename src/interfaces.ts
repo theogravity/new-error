@@ -247,6 +247,18 @@ export interface IBaseErrorConfig {
    * If the metadata has no data defined, remove the `meta` property on `toJSON` / `toJSONSafe`
    */
   omitEmptyMetadata?: boolean
+  /**
+   * A function to run against the computed data when calling `toJSON`. This is called prior
+   * to field omission. If defined, must return the data back.
+   */
+  onPreToJSONData?: (data: Partial<SerializedError>) => Partial<SerializedError>
+  /**
+   * A function to run against the computed safe data when calling `toJSONSafe`. This is called
+   * prior to field omission. If defined, must return the data back.
+   */
+  onPreToJSONSafeData?: (
+    data: Partial<SerializedErrorSafe>
+  ) => Partial<SerializedErrorSafe>
 }
 
 /**
@@ -287,9 +299,14 @@ export interface SerializedErrorSafe {
   logLevel?: string | number
 
   /**
-   * User-defined metadata
+   * User-defined metadata. May not be present if there is no data and omitEmptyMetadata is enabled
    */
-  meta: Record<string, any>
+  meta?: Record<string, any>
+
+  /**
+   * Other optional values
+   */
+  [key: string]: any
 }
 
 /**
