@@ -1,3 +1,16 @@
+## 1.2.9 - Tue Mar 09 2021 22:34:18
+
+**Contributor:** Theo Gravity
+
+- Add helper utilities for registry definitions
+
+Two utility methods have been defined:
+
+- `generateHighLevelErrors()`
+- `generateLowLevelErrors()`
+
+See readme for more details.
+
 ## 1.2.8 - Tue Mar 09 2021 03:52:59
 
 **Contributor:** Theo Gravity
