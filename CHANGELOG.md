@@ -1,3 +1,11 @@
+## 1.2.7 - Tue Mar 09 2021 01:55:52
+
+**Contributor:** Theo Gravity
+
+- Add `ErrorRegistry` config option `onCreateError`
+
+You can now globally modify new errors created from the error registry via the `onCreateError` handler.
+
 ## 1.2.6 - Tue Mar 09 2021 00:23:04
 
 **Contributor:** Theo Gravity
