@@ -37,6 +37,7 @@ of errors to a client or for internal development / logs.
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
     - [Create an error without a low-level error](#create-an-error-without-a-low-level-error)
+    - [Error creation handler](#error-creation-handler)
   - [`instanceOf` / comparisons](#instanceof--comparisons)
     - [Comparing a custom error](#comparing-a-custom-error)
     - [Native `instanceof`](#native-instanceof)
