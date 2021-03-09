@@ -90,6 +90,22 @@ describe('ErrorRegistry', () => {
     expect(err.stack).not.toContain('at ErrorRegistry.newError')
   })
 
+  it('should call the onCreateError handler', () => {
+    const registry = new ErrorRegistry(errors, errorCodes, {
+      onCreateError: err => {
+        err.withErrorId('test-id')
+      }
+    })
+
+    const err = registry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+    expect(err.getErrorId()).toBe('test-id')
+    const err2 = registry.newBareError(
+      'INTERNAL_SERVER_ERROR',
+      'DATABASE_FAILURE'
+    )
+    expect(err2.getErrorId()).toBe('test-id')
+  })
+
   it('should throw if a low error code does not exist', () => {
     const registry = new ErrorRegistry(errors, errorCodes)
 

@@ -399,6 +399,10 @@ interface IErrorRegistryConfig {
    * Options when creating a new BaseError
    */
   baseErrorConfig?: IBaseErrorConfig
+  /**
+   * Handler to modify the created error when newError / newBareError is called
+   */
+  onCreateError?: (err: BaseRegistryError) => void
 }
 ```
 
@@ -442,6 +446,23 @@ error message.
 ```typescript
 // Creates an InternalServerError error with a custom message
 const err = errRegistry.newBareError('INTERNAL_SERVER_ERROR', 'An internal server error has occured.')
+```
+
+### Error creation handler
+
+If you want all errors created from the registry to have defined properties, you can use the `onCreateError` config option to modify the created error.
+
+For example, if you want to create an error id for each new error:
+
+```ts
+const errRegistry = new ErrorRegistry(errors, errorCodes, {
+  onCreateError: (err) => {
+    err.withErrorId('test-id')
+  }
+})
+
+// the err should have 'test-id' set for the error id
+const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
 ```
 
 ## `instanceOf` / comparisons

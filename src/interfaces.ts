@@ -1,6 +1,7 @@
 /**
  * A High Level Error definition defined by the user
  */
+import { BaseRegistryError } from './error-types/BaseRegistryError'
 
 export interface HighLevelError {
   /**
@@ -269,6 +270,10 @@ export interface IErrorRegistryConfig {
    * Options when creating a new BaseError
    */
   baseErrorConfig?: IBaseErrorConfig
+  /**
+   * Handler to modify the created error when newError / newBareError is called
+   */
+  onCreateError?: (err: BaseRegistryError) => void
 }
 
 /**

@@ -133,15 +133,21 @@ export class ErrorRegistry<
     message: string
   ): BaseRegistryError {
     const C = this.getClass(highLvErrName)
-    return this.reformatTrace(
-      new C(
-        this.getHighLevelError(highLvErrName),
-        {
-          message
-        },
-        this._config.baseErrorConfig
-      )
+    const err = new C(
+      this.getHighLevelError(highLvErrName),
+      {
+        message
+      },
+      this._config.baseErrorConfig
     )
+
+    if (typeof this._config.onCreateError === 'function') {
+      this._config.onCreateError(err)
+    }
+
+    this.reformatTrace(err)
+
+    return err
   }
 
   /**
@@ -159,24 +165,29 @@ export class ErrorRegistry<
     }
 
     const C = this.getClass(highLvErrName)
-    return this.reformatTrace(
-      new C(
-        this.getHighLevelError(highLvErrName),
-        this.getLowLevelError(lowLvErrName) as LowLevelErrorInternal,
-        this._config.baseErrorConfig
-      )
+    const err = new C(
+      this.getHighLevelError(highLvErrName),
+      this.getLowLevelError(lowLvErrName) as LowLevelErrorInternal,
+      this._config.baseErrorConfig
     )
+
+    if (typeof this._config.onCreateError === 'function') {
+      this._config.onCreateError(err)
+    }
+
+    this.reformatTrace(err)
+
+    return err
   }
 
   /**
    * Updates the stack trace to remove the error registry entry:
    * "at ErrorRegistry.newError" and related entries
    */
-  private reformatTrace (err: BaseRegistryError): BaseRegistryError {
+  private reformatTrace (err: BaseRegistryError): void {
     const stack = err.stack.split('\n')
     stack.splice(1, 1)
     err.stack = stack.join('\n')
-    return err
   }
 
   /**
