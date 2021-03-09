@@ -1,3 +1,11 @@
+## 1.2.6 - Tue Mar 09 2021 00:23:04
+
+**Contributor:** Theo Gravity
+
+- Clean up stack traces
+
+If you are calling `ErrorRegistry#newError` or related functions to create errors, the stack trace includes an `ErrorRegistry` entry. This change removes that entry for easier readability.
+
 ## 1.2.5 - Mon Mar 08 2021 22:54:45
 
 **Contributor:** Theo Gravity
