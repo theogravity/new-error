@@ -7,8 +7,12 @@ import {
   SerializedErrorSafe,
   HighLevelError,
   LowLevelError,
-  DeserializeOpts
+  DeserializeOpts,
+  GenerateLowLevelErrorOpts,
+  GenerateHighLevelErrorOpts
 } from './interfaces'
+
+export * from './utils'
 
 export {
   BaseError,
@@ -19,5 +23,7 @@ export {
   LowLevelError,
   SerializedError,
   SerializedErrorSafe,
-  DeserializeOpts
+  DeserializeOpts,
+  GenerateLowLevelErrorOpts,
+  GenerateHighLevelErrorOpts
 }

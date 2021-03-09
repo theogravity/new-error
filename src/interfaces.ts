@@ -346,3 +346,21 @@ export interface DeserializeOpts {
    */
   safeMetadataFields?: Record<string, true>
 }
+
+export interface GenerateHighLevelErrorOpts {
+  /**
+   * Disable to not generate the class name based on the property name if the className is not defined.
+   */
+  disableGenerateClassName?: boolean
+  /**
+   * Disable to not generate the error code based on the property name if the code is not defined.
+   */
+  disableGenerateCode?: boolean
+}
+
+export interface GenerateLowLevelErrorOpts {
+  /**
+   * Disable to not generate the error code based on the property name if the subCode is not defined.
+   */
+  disableGenerateSubCode?: boolean
+}

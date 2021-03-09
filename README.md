@@ -27,6 +27,9 @@ of errors to a client or for internal development / logs.
 - [Installation](#installation)
 - [Examples](#examples)
   - [With the error registry](#with-the-error-registry)
+    - [Helper utilities](#helper-utilities)
+      - [Auto-generate high level error properties](#auto-generate-high-level-error-properties)
+      - [Auto-generate low level error properties](#auto-generate-low-level-error-properties)
   - [Class-based with low level errors without a registry](#class-based-with-low-level-errors-without-a-registry)
   - [Bare-bones class-based error](#bare-bones-class-based-error)
 - [Example Express Integration](#example-express-integration)
@@ -204,6 +207,93 @@ Produces:
     '    at Object.nodeDevHook [as .ts] (new-error/node_modules/ts-node-dev/lib/hook.js:61:7)\n' +
     '    at Module.load (internal/modules/cjs/loader.js:1002:32)\n' +
     '    at Function.Module._load (internal/modules/cjs/loader.js:901:14)'
+}
+```
+
+### Helper utilities
+
+#### Auto-generate high level error properties
+
+`generateHighLevelErrors(errorDefs, options: GenerateHighLevelErrorOpts)`
+
+If you find yourself doing the following pattern:
+
+```ts
+const errors = {
+  INTERNAL_SERVER_ERROR: {
+    className: 'InternalServerError', // pascal case'd property name
+    code: 'INTERNAL_SERVER_ERROR', // same as the property name
+    statusCode: 500
+  }
+}
+```
+
+You can use the utility method to do it instead:
+
+```ts
+import { generateHighLevelErrors } from 'new-error'
+
+const errors = generateHighLevelErrors({
+  INTERNAL_SERVER_ERROR: {
+    statusCode: 500
+  }
+})
+```
+
+- If a `className` or `code` is already defined, it will not overwrite it
+
+Options:
+
+```ts
+interface GenerateHighLevelErrorOpts {
+  /**
+   * Disable to not generate the class name based on the property name if the className is not defined.
+   */
+  disableGenerateClassName?: boolean
+  /**
+   * Disable to not generate the error code based on the property name if the code is not defined.
+   */
+  disableGenerateCode?: boolean
+}
+```
+
+#### Auto-generate low level error properties
+
+`generateLowLevelErrors(errorDefs, options: GenerateLowLevelErrorOpts)`
+
+If you find yourself doing the following pattern:
+
+```ts
+const errors = {
+  DATABASE_FAILURE: {
+    subCode: 'DATABASE_FAILURE', // same as the property name
+    message: 'Database failure'
+  }
+}
+```
+
+You can use the utility method to do it instead:
+
+```ts
+import { generateLowLevelErrors } from 'new-error'
+
+const errors = generateLowLevelErrors({
+  DATABASE_FAILURE: {
+    message: 'Database failure'
+  }
+})
+```
+
+- If a `subCode` is already defined, it will not overwrite it
+
+Options:
+
+```ts
+interface GenerateLowLevelErrorOpts {
+  /**
+   * Disable to not generate the error code based on the property name if the subCode is not defined.
+   */
+  disableGenerateSubCode?: boolean
 }
 ```
 
