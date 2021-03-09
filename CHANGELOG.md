@@ -1,3 +1,9 @@
+## 1.2.8 - Tue Mar 09 2021 03:52:59
+
+**Contributor:** Theo Gravity
+
+- Update readme
+
 ## 1.2.7 - Tue Mar 09 2021 01:55:52
 
 **Contributor:** Theo Gravity
