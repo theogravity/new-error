@@ -83,6 +83,13 @@ describe('ErrorRegistry', () => {
     )
   })
 
+  it('should create an error instance without the ErrorRegistry reference', () => {
+    const registry = new ErrorRegistry(errors, errorCodes)
+    const err = registry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+
+    expect(err.stack).not.toContain('at ErrorRegistry.newError')
+  })
+
   it('should throw if a low error code does not exist', () => {
     const registry = new ErrorRegistry(errors, errorCodes)
 

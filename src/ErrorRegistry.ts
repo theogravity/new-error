@@ -133,12 +133,14 @@ export class ErrorRegistry<
     message: string
   ): BaseRegistryError {
     const C = this.getClass(highLvErrName)
-    return new C(
-      this.getHighLevelError(highLvErrName),
-      {
-        message
-      },
-      this._config.baseErrorConfig
+    return this.reformatTrace(
+      new C(
+        this.getHighLevelError(highLvErrName),
+        {
+          message
+        },
+        this._config.baseErrorConfig
+      )
     )
   }
 
@@ -157,11 +159,24 @@ export class ErrorRegistry<
     }
 
     const C = this.getClass(highLvErrName)
-    return new C(
-      this.getHighLevelError(highLvErrName),
-      this.getLowLevelError(lowLvErrName) as LowLevelErrorInternal,
-      this._config.baseErrorConfig
+    return this.reformatTrace(
+      new C(
+        this.getHighLevelError(highLvErrName),
+        this.getLowLevelError(lowLvErrName) as LowLevelErrorInternal,
+        this._config.baseErrorConfig
+      )
     )
+  }
+
+  /**
+   * Updates the stack trace to remove the error registry entry:
+   * "at ErrorRegistry.newError" and related entries
+   */
+  private reformatTrace (err: BaseRegistryError): BaseRegistryError {
+    const stack = err.stack.split('\n')
+    stack.splice(1, 1)
+    err.stack = stack.join('\n')
+    return err
   }
 
   /**
