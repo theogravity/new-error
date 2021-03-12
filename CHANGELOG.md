@@ -1,3 +1,9 @@
+## 1.2.10 - Fri Mar 12 2021 02:21:26
+
+**Contributor:** Theo Gravity
+
+- Fix typescript error when using utility helpers with registry and calling newError
+
 ## 1.2.9 - Tue Mar 09 2021 22:34:18
 
 **Contributor:** Theo Gravity
