@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import { ErrorRegistry } from '../ErrorRegistry'
-import { BaseError } from '..'
+import { BaseError, generateHighLevelErrors, generateLowLevelErrors } from '..'
 
 const errors = {
   INTERNAL_SERVER_ERROR: {
@@ -142,6 +142,29 @@ describe('ErrorRegistry', () => {
 
     expect(json2.errId).not.toBeDefined()
     expect(jsonSafe2.errId).not.toBeDefined()
+  })
+
+  it('should accept a definition from generateHighLevelErrors / generateLowLevelErrors', () => {
+    const hl = generateHighLevelErrors({
+      HIGH_LV_ERR: {},
+      HIGHER_LV_ERR: {
+        code: 'HIGHER'
+      }
+    })
+
+    const ll = generateLowLevelErrors({
+      LOW_LV_ERR: {
+        message: 'test'
+      },
+      LOWER_LV_ERR: {
+        message: 'test2',
+        subCode: 'LOWER_LV_ERR'
+      }
+    })
+
+    const registry = new ErrorRegistry(hl, ll)
+
+    expect(registry.newError('HIGH_LV_ERR', 'LOW_LV_ERR')).toBeDefined()
   })
 
   describe('deserialization', () => {

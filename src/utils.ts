@@ -2,7 +2,8 @@ import {
   GenerateHighLevelErrorOpts,
   GenerateLowLevelErrorOpts,
   HighLevelErrorInternal,
-  LowLevelErrorDef
+  LowLevelErrorDef,
+  LowLevelErrorInternal
 } from './interfaces'
 
 /**
@@ -11,25 +12,25 @@ import {
  * - code is the name of the property name
  */
 export function generateHighLevelErrors<
-  T extends HighLevelErrorInternal = HighLevelErrorInternal
+  HLError extends Record<keyof HLError, HLInternal>,
+  HLInternal extends HighLevelErrorInternal
 > (
-  errorDefs: Record<string, Partial<T>>,
+  errorDefs: Record<keyof HLError, Partial<HLInternal>>,
   opts: GenerateHighLevelErrorOpts = {}
-) {
-  return Object.keys(errorDefs).reduce<Record<string, Partial<T>>>(
-    (defs, errId) => {
-      if (!opts.disableGenerateClassName && !defs[errId].className) {
-        defs[errId].className = toPascalCase(errId)
-      }
+): HLError {
+  return (Object.keys(errorDefs).reduce<
+    Record<keyof HLError, Partial<HLInternal>>
+  >((defs, errId) => {
+    if (!opts.disableGenerateClassName && !defs[errId].className) {
+      defs[errId].className = toPascalCase(errId)
+    }
 
-      if (!opts.disableGenerateCode && !defs[errId].code) {
-        defs[errId].code = errId
-      }
+    if (!opts.disableGenerateCode && !defs[errId].code) {
+      defs[errId].code = errId
+    }
 
-      return defs
-    },
-    errorDefs
-  )
+    return defs
+  }, errorDefs) as unknown) as HLError
 }
 
 /**
@@ -37,21 +38,21 @@ export function generateHighLevelErrors<
  * - subCode is the name of the property name
  */
 export function generateLowLevelErrors<
-  T extends LowLevelErrorDef = LowLevelErrorDef
+  LLErrorName extends Record<keyof LLErrorName, LLInternal>,
+  LLInternal extends LowLevelErrorInternal
 > (
-  errorDefs: Record<string, Partial<T>>,
+  errorDefs: Record<keyof LLErrorName, Partial<LLInternal>>,
   opts: GenerateLowLevelErrorOpts = {}
-) {
-  return Object.keys(errorDefs).reduce<Record<string, Partial<T>>>(
-    (defs, errId) => {
-      if (!opts.disableGenerateSubCode && !defs[errId].subCode) {
-        defs[errId].subCode = errId
-      }
+): LLErrorName {
+  return (Object.keys(errorDefs).reduce<
+    Record<keyof LLErrorName, Partial<LLInternal>>
+  >((defs, errId) => {
+    if (!opts.disableGenerateSubCode && !defs[errId].subCode) {
+      defs[errId].subCode = errId
+    }
 
-      return defs
-    },
-    errorDefs
-  )
+    return defs
+  }, errorDefs) as unknown) as LLErrorName
 }
 
 // https://gist.github.com/jacks0n/e0bfb71a48c64fbbd71e5c6e956b17d7
