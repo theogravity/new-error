@@ -244,6 +244,31 @@ describe('BaseError', () => {
     expect(err.getConfig()).toBeDefined()
   })
 
+  describe('conversion', () => {
+    it('should return false if onConvert is not defined', () => {
+      const err = new BaseError('test')
+      expect(err.hasOnConvertDefined()).toEqual(false)
+    })
+
+    it('should return true if onConvert is defined', () => {
+      const err = new BaseError('test', {
+        onConvert: () => {
+          return 'test'
+        }
+      })
+
+      expect(err.hasOnConvertDefined()).toEqual(true)
+    })
+
+    it('should update the conversion fn', () => {
+      const err = new BaseError('test')
+      err.setOnConvert(() => {
+        return 'test'
+      })
+      expect(err.hasOnConvertDefined()).toEqual(true)
+    })
+  })
+
   describe('Deserialization', () => {
     it('throws if the data is not an object', () => {
       // @ts-ignore

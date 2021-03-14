@@ -1,6 +1,8 @@
 import { vsprintf } from 'sprintf-js'
 import ExtendableError from 'es6-error'
 import {
+  ConvertedType,
+  ConvertFn,
   DeserializeOpts,
   IBaseError,
   IBaseErrorConfig,
@@ -24,6 +26,7 @@ export class BaseError extends ExtendableError implements IBaseError {
   protected _config: IBaseErrorConfig
   protected _hasMetadata: boolean
   protected _hasSafeMetadata: boolean
+  protected _onConvert: ConvertFn | null
 
   constructor (message: string, config: IBaseErrorConfig = {}) {
     super(message)
@@ -33,6 +36,7 @@ export class BaseError extends ExtendableError implements IBaseError {
     this._hasMetadata = false
     this._hasSafeMetadata = false
     this._config = config || {}
+    this._onConvert = this._config.onConvert || null
   }
 
   /**
@@ -266,13 +270,17 @@ export class BaseError extends ExtendableError implements IBaseError {
       }
     })
 
-    fieldsToOmit?.forEach(item => {
-      delete data[item]
-    })
+    if (Array.isArray(fieldsToOmit)) {
+      fieldsToOmit.forEach(item => {
+        delete data[item]
+      })
+    }
 
-    this._config.toJSONFieldsToOmit?.forEach(item => {
-      delete data[item]
-    })
+    if (Array.isArray(this._config.toJSONFieldsToOmit)) {
+      this._config.toJSONFieldsToOmit.forEach(item => {
+        delete data[item]
+      })
+    }
 
     return data
   }
@@ -308,15 +316,46 @@ export class BaseError extends ExtendableError implements IBaseError {
       data = this._config.onPreToJSONSafeData(data)
     }
 
-    fieldsToOmit?.forEach(item => {
-      delete data[item]
-    })
+    if (Array.isArray(fieldsToOmit)) {
+      fieldsToOmit.forEach(item => {
+        delete data[item]
+      })
+    }
 
-    this._config.toJSONSafeFieldsToOmit?.forEach(item => {
-      delete data[item]
-    })
+    if (Array.isArray(this._config.toJSONSafeFieldsToOmit)) {
+      this._config.toJSONSafeFieldsToOmit.forEach(item => {
+        delete data[item]
+      })
+    }
 
     return data
+  }
+
+  /**
+   * Calls the user-defined `onConvert` function to convert the error into another type.
+   * If `onConvert` is not defined, then returns the error itself.
+   */
+  convert<T = ConvertedType> (): T {
+    if (this._onConvert) {
+      return this._onConvert(this) as T
+    }
+
+    return this as any
+  }
+
+  /**
+   * Returns true if the onConvert handler is defined
+   */
+  hasOnConvertDefined (): boolean {
+    return typeof this._onConvert === 'function'
+  }
+
+  /**
+   * Set the onConvert handler for convert() calls.
+   * This can also be defined via the onConvert config property in the constructor.
+   */
+  setOnConvert (convertFn: ConvertFn) {
+    this._onConvert = convertFn
   }
 
   /**

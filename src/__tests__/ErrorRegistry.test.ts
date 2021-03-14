@@ -215,4 +215,76 @@ describe('ErrorRegistry', () => {
       expect(registry.instanceOf(err, 'INTERNAL_SERVER_ERROR')).toBe(false)
     })
   })
+
+  describe('conversion handler', () => {
+    const err = new Error('err')
+    const PERM_ERR_STR = 'permission error'
+
+    const errors = {
+      PERMISSION_REQUIRED: {
+        className: 'PermissionRequiredError',
+        code: 'PERMISSION_REQUIRED',
+        onConvert: () => {
+          return PERM_ERR_STR
+        }
+      },
+      AUTH_REQUIRED: {
+        className: 'AuthRequiredError',
+        code: 'AUTH_REQUIRED'
+      }
+    }
+
+    const errorCodes = {
+      ADMIN_PANEL_RESTRICTED: {
+        message: 'Access scope required: admin',
+        onConvert: () => {
+          return err
+        }
+      },
+      EDITOR_SECTION_RESTRICTED: {
+        message: 'Access scope required: editor'
+      }
+    }
+
+    const errRegistry = new ErrorRegistry(errors, errorCodes)
+
+    it('should call onConvert for a subcategory', () => {
+      expect(
+        errRegistry
+          .newError('PERMISSION_REQUIRED', 'ADMIN_PANEL_RESTRICTED')
+          .convert()
+      ).toEqual(err)
+
+      expect(
+        errRegistry
+          .newError('AUTH_REQUIRED', 'ADMIN_PANEL_RESTRICTED')
+          .convert()
+      ).toEqual(err)
+    })
+
+    it('should call onConvert for a category', () => {
+      expect(
+        errRegistry
+          .newError('PERMISSION_REQUIRED', 'EDITOR_SECTION_RESTRICTED')
+          .convert()
+      ).toEqual(PERM_ERR_STR)
+
+      expect(
+        errRegistry.newBareError('PERMISSION_REQUIRED', 'test').convert()
+      ).toEqual(PERM_ERR_STR)
+    })
+
+    it('should return the error when onConvert is not defined', () => {
+      let baseErr = errRegistry.newError(
+        'AUTH_REQUIRED',
+        'EDITOR_SECTION_RESTRICTED'
+      )
+
+      expect(baseErr.convert()).toEqual(baseErr)
+
+      baseErr = errRegistry.newBareError('AUTH_REQUIRED', 'test')
+
+      expect(baseErr.convert()).toEqual(baseErr)
+    })
+  })
 })
