@@ -2,7 +2,9 @@ import {
   GenerateHighLevelErrorOpts,
   GenerateLowLevelErrorOpts,
   HighLevelErrorInternal,
-  LowLevelErrorDef,
+  HLDefs,
+  KeyOfStr,
+  LLDefs,
   LowLevelErrorInternal
 } from './interfaces'
 
@@ -12,14 +14,14 @@ import {
  * - code is the name of the property name
  */
 export function generateHighLevelErrors<
-  HLError extends Record<keyof HLError, HLInternal>,
+  HLErrors extends HLDefs<KeyOfStr<HLErrors>>,
   HLInternal extends HighLevelErrorInternal
 > (
-  errorDefs: Record<keyof HLError, Partial<HLInternal>>,
+  errorDefs: Record<keyof HLErrors, Partial<HLInternal>>,
   opts: GenerateHighLevelErrorOpts = {}
-): HLError {
+): HLErrors {
   return (Object.keys(errorDefs).reduce<
-    Record<keyof HLError, Partial<HLInternal>>
+    Record<keyof HLErrors, Partial<HLInternal>>
   >((defs, errId) => {
     if (!opts.disableGenerateClassName && !defs[errId].className) {
       defs[errId].className = toPascalCase(errId)
@@ -30,7 +32,7 @@ export function generateHighLevelErrors<
     }
 
     return defs
-  }, errorDefs) as unknown) as HLError
+  }, errorDefs) as unknown) as HLErrors
 }
 
 /**
@@ -38,21 +40,21 @@ export function generateHighLevelErrors<
  * - subCode is the name of the property name
  */
 export function generateLowLevelErrors<
-  LLErrorName extends Record<keyof LLErrorName, LLInternal>,
+  LLErrors extends LLDefs<KeyOfStr<LLErrors>>,
   LLInternal extends LowLevelErrorInternal
 > (
-  errorDefs: Record<keyof LLErrorName, Partial<LLInternal>>,
+  errorDefs: Record<keyof LLErrors, Partial<LLInternal>>,
   opts: GenerateLowLevelErrorOpts = {}
-): LLErrorName {
+): LLErrors {
   return (Object.keys(errorDefs).reduce<
-    Record<keyof LLErrorName, Partial<LLInternal>>
+    Record<keyof LLErrors, Partial<LLInternal>>
   >((defs, errId) => {
     if (!opts.disableGenerateSubCode && !defs[errId].subCode) {
       defs[errId].subCode = errId
     }
 
     return defs
-  }, errorDefs) as unknown) as LLErrorName
+  }, errorDefs) as unknown) as LLErrors
 }
 
 // https://gist.github.com/jacks0n/e0bfb71a48c64fbbd71e5c6e956b17d7

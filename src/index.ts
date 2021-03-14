@@ -11,15 +11,20 @@ import {
   GenerateLowLevelErrorOpts,
   GenerateHighLevelErrorOpts,
   ConvertedType,
-  ConvertFn
+  ConvertFn,
+  HLDefs,
+  LLDefs,
+  KeyOfStr
 } from './interfaces'
 
-export * from './utils'
+import { generateHighLevelErrors, generateLowLevelErrors } from './utils'
 
 export {
   BaseError,
   BaseRegistryError,
   ErrorRegistry,
+  generateHighLevelErrors,
+  generateLowLevelErrors,
   IBaseError,
   HighLevelError,
   LowLevelError,
@@ -29,5 +34,8 @@ export {
   GenerateLowLevelErrorOpts,
   GenerateHighLevelErrorOpts,
   ConvertedType,
-  ConvertFn
+  ConvertFn,
+  HLDefs,
+  LLDefs,
+  KeyOfStr
 }

@@ -34,6 +34,15 @@ export interface HighLevelError {
    * - If defined in HighLevelError, the HighLevelError definition takes priority
    */
   onConvert?: ConvertFn
+
+  /**
+   * Full description of the error. Used only when BaseError#newBareError() is called without
+   * the message parameter.
+   *
+   * sprintf() flags can be applied to customize it.
+   * @see https://www.npmjs.com/package/sprintf-js
+   */
+  message?: string
 }
 
 /**
@@ -413,6 +422,30 @@ export interface GenerateLowLevelErrorOpts {
 
 export type ConvertedType = any
 
+/**
+ * onConvert function handler definition
+ */
 export type ConvertFn = <E extends BaseError = BaseError>(
   err: E
 ) => ConvertedType
+
+/**
+ * Alias for keyof w/ string only
+ */
+export type KeyOfStr<T> = Extract<keyof T, string>
+
+/**
+ * A collection of high level error definitions
+ */
+export type HLDefs<
+  T extends string,
+  HLDef extends HighLevelErrorInternal = HighLevelErrorInternal
+> = Record<T, HLDef>
+
+/**
+ * A collection of low level error definitions
+ */
+export type LLDefs<
+  T extends string,
+  LLDef extends LowLevelErrorInternal = LowLevelErrorInternal
+> = Record<T, LLDef>

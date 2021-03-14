@@ -6,7 +6,8 @@ import { BaseError, generateHighLevelErrors, generateLowLevelErrors } from '..'
 const errors = {
   INTERNAL_SERVER_ERROR: {
     className: 'InternalServerError',
-    code: 'INT_ERR'
+    code: 'INT_ERR',
+    message: 'Internal server error'
   },
   AUTH_ERROR: {
     className: 'AuthError',
@@ -48,26 +49,57 @@ describe('ErrorRegistry', () => {
     expect(registry.instanceOf(err, 'AUTH_ERROR')).toBe(false)
   })
 
-  it('should create a bare error instance', () => {
-    const registry = new ErrorRegistry(errors, errorCodes)
-    const err = registry.newBareError('INTERNAL_SERVER_ERROR', 'bare error msg')
+  describe('newBareError', () => {
+    it('should create a bare error instance with a message', () => {
+      const registry = new ErrorRegistry(errors, errorCodes)
+      const err = registry.newBareError(
+        'INTERNAL_SERVER_ERROR',
+        'bare error msg'
+      )
 
-    expect(registry.instanceOf(err, 'INTERNAL_SERVER_ERROR'))
+      expect(registry.instanceOf(err, 'INTERNAL_SERVER_ERROR'))
 
-    expect(err.toJSON()).toEqual(
-      expect.objectContaining({
-        message: 'bare error msg'
-      })
-    )
-  })
+      expect(err.toJSON()).toEqual(
+        expect.objectContaining({
+          message: 'bare error msg'
+        })
+      )
+    })
 
-  it('should throw if a bare error class def does not exist', () => {
-    const registry = new ErrorRegistry(errors, errorCodes)
+    it('should create a bare error instance using the high level error', () => {
+      const registry = new ErrorRegistry(errors, errorCodes)
+      const err = registry.newBareError('INTERNAL_SERVER_ERROR')
 
-    // @ts-ignore
-    expect(() => registry.newBareError('invalid', 'msg')).toThrowError(
-      /not defined/
-    )
+      expect(registry.instanceOf(err, 'INTERNAL_SERVER_ERROR'))
+
+      expect(err.toJSON()).toEqual(
+        expect.objectContaining({
+          message: 'Internal server error'
+        })
+      )
+    })
+
+    it('should create a bare error instance with the code as the message', () => {
+      const registry = new ErrorRegistry(errors, errorCodes)
+      const err = registry.newBareError('AUTH_ERROR')
+
+      expect(registry.instanceOf(err, 'AUTH_ERROR'))
+
+      expect(err.toJSON()).toEqual(
+        expect.objectContaining({
+          message: errors.AUTH_ERROR.code
+        })
+      )
+    })
+
+    it('should throw if a bare error class def does not exist', () => {
+      const registry = new ErrorRegistry(errors, errorCodes)
+
+      // @ts-ignore
+      expect(() => registry.newBareError('invalid', 'msg')).toThrowError(
+        /not defined/
+      )
+    })
   })
 
   it('should create an error instance', () => {

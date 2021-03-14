@@ -1,8 +1,11 @@
 import {
   DeserializeOpts,
   HighLevelErrorInternal,
+  HLDefs,
   IBaseError,
   IErrorRegistryConfig,
+  KeyOfStr,
+  LLDefs,
   LowLevelErrorInternal,
   SerializedError
 } from './interfaces'
@@ -15,43 +18,40 @@ import { BaseError } from './error-types/BaseError'
  * generates custom errors from those definitions.
  */
 export class ErrorRegistry<
-  ErrCode extends LowLevelErrorInternal,
-  HLError extends Record<keyof HLError, HighLevelErrorInternal>,
-  LLErrorName extends Record<keyof LLErrorName, LowLevelErrorInternal>,
-  LLError extends Record<keyof LLErrorName, LowLevelErrorInternal>
+  HLErrors extends HLDefs<KeyOfStr<HLErrors>>,
+  LLErrors extends LLDefs<KeyOfStr<LLErrors>>
 > {
   /**
    * High level error definitions
    */
-  protected highLevelErrors: Record<keyof HLError, HighLevelErrorInternal>
+  protected highLevelErrors: HLErrors
 
   /**
    * A map of high level names to class name
-   * @protected
    */
-  protected classNameHighLevelNameMap: Record<keyof HLError, string>
+  protected classNameHighLevelNameMap: Record<KeyOfStr<HLErrors>, string>
 
   /**
    * Cached high level error classes
    */
   protected highLevelErrorClasses: Record<
-    keyof HLError,
+    KeyOfStr<HLErrors>,
     typeof BaseRegistryError
   >
 
   /**
    * Low level error definitions
    */
-  protected lowLevelErrors: LLError
+  protected lowLevelErrors: LLErrors
 
   /**
    * Error registry configuration
-\   */
+   */
   protected _config: IErrorRegistryConfig
 
   constructor (
-    highLvErrors: HLError,
-    lowLvErrors: LLErrorName,
+    highLvErrors: HLErrors,
+    lowLvErrors: LLErrors,
     config: IErrorRegistryConfig = {}
   ) {
     this.highLevelErrors = highLvErrors
@@ -77,7 +77,7 @@ export class ErrorRegistry<
    * @param {string} highLvErrName
    */
   protected getHighLevelError (
-    highLvErrName: keyof HLError
+    highLvErrName: KeyOfStr<HLErrors>
   ): HighLevelErrorInternal {
     return this.highLevelErrors[highLvErrName]
   }
@@ -87,7 +87,7 @@ export class ErrorRegistry<
    * @param {string} lowLvErrName
    */
   protected getLowLevelError (
-    lowLvErrName: keyof LLError
+    lowLvErrName: KeyOfStr<LLErrors>
   ): LowLevelErrorInternal {
     return this.lowLevelErrors[lowLvErrName]
   }
@@ -96,7 +96,7 @@ export class ErrorRegistry<
    * Gets the class definition of a High Level Error
    * @param highLvErrName
    */
-  getClass (highLvErrName: keyof HLError): typeof BaseRegistryError {
+  getClass (highLvErrName: KeyOfStr<HLErrors>): typeof BaseRegistryError {
     const highLevelDef = this.getHighLevelError(highLvErrName)
 
     if (!highLevelDef) {
@@ -118,7 +118,7 @@ export class ErrorRegistry<
   /**
    * Compares an instance of an object to a specified High Level Error
    */
-  instanceOf (a: any, highLvErrName: keyof HLError) {
+  instanceOf (a: any, highLvErrName: KeyOfStr<HLErrors>) {
     return a instanceof this.getClass(highLvErrName)
   }
 
@@ -126,12 +126,22 @@ export class ErrorRegistry<
    * Creates an instance of a High Level Error, without a Low Level Error
    * attached to it.
    * @param {string} highLvErrName
-   * @param {string} message Error message
+   * @param {string} [message] Error message. If not defined and the high level error has the
+   * message property defined, will use that instead. If the high level error message is not defined,
+   * then will use the high level error id instead for the message.
    */
   newBareError (
-    highLvErrName: keyof HLError,
-    message: string
+    highLvErrName: KeyOfStr<HLErrors>,
+    message?: string
   ): BaseRegistryError {
+    const hlErrDef = this.highLevelErrors[highLvErrName]
+
+    if (!message && hlErrDef.message) {
+      message = hlErrDef.message
+    } else if (!message) {
+      message = hlErrDef.code.toString()
+    }
+
     const C = this.getClass(highLvErrName)
     const err = new C(
       this.getHighLevelError(highLvErrName),
@@ -157,8 +167,8 @@ export class ErrorRegistry<
    * @param {string} lowLvErrName
    */
   newError (
-    highLvErrName: keyof HLError,
-    lowLvErrName: keyof LLError
+    highLvErrName: KeyOfStr<HLErrors>,
+    lowLvErrName: KeyOfStr<LLErrors>
   ): BaseRegistryError {
     if (!this.lowLevelErrors[lowLvErrName]) {
       throw new Error(`Low level error not defined: ${lowLvErrName}`)
@@ -208,14 +218,14 @@ export class ErrorRegistry<
     const errorName = this.classNameHighLevelNameMap[data.name]
 
     // use the lookup results to see if we can get the class definition of the high level error
-    const highLevelDef = this.getHighLevelError(errorName as keyof HLError)
+    const highLevelDef = this.getHighLevelError(errorName as KeyOfStr<HLErrors>)
 
     let err = null
 
     // Can deserialize into an custom error instance class
     if (highLevelDef) {
       // get the class for the error type
-      const C = this.getClass(errorName as keyof HLError)
+      const C = this.getClass(errorName as KeyOfStr<HLErrors>)
       err = C.fromJSON(data, opts)
     } else {
       err = BaseError.fromJSON(data, opts)
