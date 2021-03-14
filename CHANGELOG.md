@@ -1,3 +1,17 @@
+## 2.0.1 - Sun Mar 14 2021 05:42:56
+
+**Contributor:** Theo Gravity
+
+- New major version: v2 (#12)
+
+For most users, this new major version should not break your existing code.
+
+You may have to make adjustments if you happen to use generics in `ErrorRegistry`.
+
+- Potentially breaking: Refactor `ErrorRegistry` generics by removing unused generics and moving the definitions to an interface
+- Added the ability to define a `message` in a high level definition. This is used with `ErrorRegistry#newBareError` if no message is defined.
+- Made the `message` parameter of `ErrorRegistry#newBareError` optional. See readme for behavior when the parameter is omitted.
+
 ## 1.3.1 - Sun Mar 14 2021 03:09:54
 
 **Contributor:** Theo Gravity
