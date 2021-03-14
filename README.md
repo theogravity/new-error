@@ -40,6 +40,9 @@ of errors to a client or for internal development / logs.
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
     - [Create an error without a low-level error](#create-an-error-without-a-low-level-error)
+      - [Specify a custom message](#specify-a-custom-message)
+      - [Use the message property from the high level error if defined](#use-the-message-property-from-the-high-level-error-if-defined)
+      - [Custom message not defined and high level error has no message property defined](#custom-message-not-defined-and-high-level-error-has-no-message-property-defined)
     - [Error creation handler](#error-creation-handler)
   - [`instanceOf` / comparisons](#instanceof--comparisons)
     - [Comparing a custom error](#comparing-a-custom-error)
@@ -137,14 +140,31 @@ const errors = {
      * assign a different log level for it. Used as the default if a
      * Low Level log level is not defined.
      */
-    logLevel: 'error'
+    logLevel: 'error',
+    /**
+     * (optional) Callback function to call when calling BaseError#convert().
+     *
+     * (baseError) => any type
+     *
+     * - If not defined, will return itself when convert() is called
+     * - If defined in HighLevelError, the HighLevelError definition takes priority
+     */
+    onConvert: (err) => { return err },
+    /**
+     * (optional) Full description of the error. Used only when BaseError#newBareError() is called 
+     * without the message parameter.
+     *
+     * sprintf() flags can be applied to customize it.
+     * @see https://www.npmjs.com/package/sprintf-js
+     */
+    message: 'Internal server error'
   }
 }
 
 // Define low-level errors
 // Do *not* assign a Typescript type to the object
 // or IDE autocompletion will not work!
-const errorCodes = {
+const errorSubCodes = {
   // 'type' of error
   DATABASE_FAILURE: {
     /**
@@ -166,14 +186,23 @@ const errorCodes = {
      * Useful if you want to use your logging system to log the error but
      * assign a different log level for it.
      */
-    logLevel: 'error'
+    logLevel: 'error',
+    /**
+     * (optional) Callback function to call when calling BaseError#convert().
+     *
+     * (baseError) => any type
+     *
+     * - If not defined, will return itself when convert() is called
+     * - This definition takes priority if HighLevelError#onConvert is defined
+     */
+    onConvert: (err) => { return err }
   }
 }
 
 // Create the error registry by registering your errors and codes
 // you will want to memoize this as you will be using the
 // reference throughout your application
-const errRegistry = new ErrorRegistry(errors, errorCodes)
+const errRegistry = new ErrorRegistry(errors, errorSubCodes)
 
 // Create an instance of InternalServerError
 // Typescript autocomplete should show the available definitions as you type the error names
@@ -368,7 +397,7 @@ const errors = {
   }
 }
 
-const errorCodes = {
+const errorSubCodes = {
   DATABASE_FAILURE: {
     message: 'There was a database failure.',
     subCode: 'DB_0001',
@@ -376,7 +405,7 @@ const errorCodes = {
   }
 }
 
-const errRegistry = new ErrorRegistry(errors, errorCodes)
+const errRegistry = new ErrorRegistry(errors, errorSubCodes)
 
 // middleware definition
 app.get('/', async (req, res, next) => {
@@ -456,7 +485,7 @@ const errors = {
   }
 }
 
-const errorCodes = {
+const errorSubCodes = {
   MISSING_FORM_FIELDS: {
     message: 'Form submission data is missing fields',
     subCode: 'MISSING_FORM_FIELDS',
@@ -464,7 +493,7 @@ const errorCodes = {
   }
 }
 
-const errRegistry = new ErrorRegistry(errors, errorCodes)
+const errRegistry = new ErrorRegistry(errors, errorSubCodes)
 
 // some part of the application throws the error
 const err = errRegistry.newError('VALIDATION_ERROR', 'MISSING_FORM_FIELDS')
@@ -503,7 +532,7 @@ interface IErrorRegistryConfig {
 Example:
 
 ```ts
-const errRegistry = new ErrorRegistry(errors, errorCodes, {
+const errRegistry = new ErrorRegistry(errors, errorSubCodes, {
   // Config for all BaseErrors created from the registry
   baseErrorConfig: {
     // Remove the `meta` field if there is no data present for `toJSON` / `toJSONSafe`
@@ -532,14 +561,47 @@ const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
 
 ### Create an error without a low-level error
 
-Method: `ErrorRegistry#newBareError(highLevelErrorName, message)`
+Method: `ErrorRegistry#newBareError(highLevelErrorName, [message])`
 
 This method does not include a low level error code, and allows direct specification of an
 error message.
 
+#### Specify a custom message
+
 ```typescript
 // Creates an InternalServerError error with a custom message
 const err = errRegistry.newBareError('INTERNAL_SERVER_ERROR', 'An internal server error has occured.')
+```
+
+#### Use the message property from the high level error if defined
+
+```typescript
+const errors = {
+  AUTH_REQUIRED: {
+    className: 'AuthRequired',
+    code: 'AUTH_REQ',
+    message: 'Auth required'
+  }
+}
+
+// Creates an AuthRequired error with a the 'Auth Required' message
+const err = errRegistry.newBareError('AUTH_REQUIRED')
+```
+
+#### Custom message not defined and high level error has no message property defined
+
+The error will use the code as the default.
+
+```typescript
+const errors = {
+  DB_ERROR: {
+    className: 'DatabaseError',
+    code: 'DB_ERR'
+  }
+}
+
+// Creates an AuthRequired error with 'DB_ERR' as the message
+const err = errRegistry.newBareError('DB_ERROR')
 ```
 
 ### Error creation handler
@@ -549,7 +611,7 @@ If you want all errors created from the registry to have defined properties, you
 For example, if you want to create an error id for each new error:
 
 ```ts
-const errRegistry = new ErrorRegistry(errors, errorCodes, {
+const errRegistry = new ErrorRegistry(errors, errorSubCodes, {
   onCreateError: (err) => {
     err.withErrorId('test-id')
   }
@@ -787,7 +849,7 @@ const errors = {
   }
 }
 
-const errorCodes = {
+const errorSubCodes = {
   ADMIN_PANEL_RESTRICTED: {
     message: 'Access scope required: admin',
     // This will override the PERMISSION_REQUIRED / high level error handler when BaseError#convert() is called
@@ -801,7 +863,7 @@ const errorCodes = {
   }
 }
 
-const errRegistry = new ErrorRegistry(errors, errorCodes)
+const errRegistry = new ErrorRegistry(errors, errorSubCodes)
 
 const server = new ApolloServer({
   typeDefs,
@@ -987,7 +1049,7 @@ The `BaseError` config `onPreToJSONData` / `onPreToJSONSafeData` options allow p
 errors created.
 
 ```ts
-const errRegistry = new ErrorRegistry(errors, errorCodes, {
+const errRegistry = new ErrorRegistry(errors, errorSubCodes, {
   baseErrorConfig: {
     // called when toJSON is called
     onPreToJSONData: (data) => {
@@ -1068,7 +1130,7 @@ const errors = {
   }
 }
 
-const errorCodes = {
+const errorSubCodes = {
   DATABASE_FAILURE: {
     message: 'There was a database failure, SQL err code %s',
     subCode: 'DB_0001',
@@ -1077,7 +1139,7 @@ const errorCodes = {
   }
 }
 
-const errRegistry = new ErrorRegistry(errors, errorCodes)
+const errRegistry = new ErrorRegistry(errors, errorSubCodes)
 
 const data = {
     'errId': 'err-123',
