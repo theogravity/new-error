@@ -1,3 +1,11 @@
+## 2.0.2 - Sun Mar 14 2021 22:12:56
+
+**Contributor:** Theo Gravity
+
+- Improve readme for Apollo GraphQL
+
+The instructions for Apollo GraphQL was not correct and has been updated with an internally tested example.
+
 ## 2.0.1 - Sun Mar 14 2021 05:42:56
 
 **Contributor:** Theo Gravity
