@@ -1,3 +1,13 @@
+## 1.3.1 - Sun Mar 14 2021 03:09:54
+
+**Contributor:** Theo Gravity
+
+- Add the ability to convert an error to another type (#11)
+
+This is useful if you need to convert the errors created by this library into another type, such as a `GraphQLError` when going outbound to the client.
+
+See the README for more details.
+
 ## 1.2.10 - Fri Mar 12 2021 02:21:26
 
 **Contributor:** Theo Gravity
