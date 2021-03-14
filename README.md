@@ -806,11 +806,12 @@ import { ApolloError, ForbiddenError } from 'apollo-server';
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  formatError: (err: BaseError | ApolloError | GraphQLError | Error) => {
-    if (err instanceof BaseError) {
+  formatError: (err: GraphQLError) => {
+    const origError = error.originalError;
 
+    if (origError instanceof BaseError) {
       // re-map the BaseError into an Apollo error type
-      switch(err.getCode()) {
+      switch(origError.getCode()) {
         case 'PERMISSION_REQUIRED':
           return new ForbiddenError(err.message)
         default:
@@ -845,37 +846,60 @@ const errors = {
   AUTH_REQUIRED: {
     className: 'AuthRequiredError',
     code: 'AUTH_REQUIRED'
-    // onConvert is not defined, so will return the error itself when convert() is called
   }
 }
 
 const errorSubCodes = {
   ADMIN_PANEL_RESTRICTED: {
     message: 'Access scope required: admin',
-    // This will override the PERMISSION_REQUIRED / high level error handler when BaseError#convert() is called
     onConvert: (error) => {
       return new ForbiddenError('Admin required')
     }
   },
   EDITOR_SECTION_RESTRICTED: {
     message: 'Access scope required: editor',
-    // no onConvert function is defined, so will use the PERMISSION_REQUIRED / high level definition if defined
   }
 }
 
-const errRegistry = new ErrorRegistry(errors, errorSubCodes)
+const errRegistry = new ErrorRegistry(errors, errorSubCodes, {
+  onCreateError: (err) => {
+    // if an onConvert handler has not been defined, default to ApolloError
+    if (!err.hasOnConvertDefined()) {
+      err.setOnConvert((err) => {
+        if (process.env.NODE_ENV !== 'production') {
+          // return full error details
+          return new ApolloError(err.message, err.getCode(), err.toJSON());
+        }
+
+        // in production, we don't want to expose codes that are internal
+        return new ApolloError('Internal server error', 'INTERNAL_SERVER_ERROR', {
+          errId: err.getErrorId(),
+        });
+      });
+    }
+  }
+})
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   // errors thrown from the resolvers come here
-  formatError: (err: BaseError | ApolloError | GraphQLError | Error) => {
-    // If the error is a BaseError and the error has the onConvert handler defined
-    if (err instanceof BaseError && err.hasOnConvertDefined()) {
-      // Convert out to an Apollo error type
-      return err.convert()
-    }
+  formatError: (err: GraphQLError) => {
+    const origError = error.originalError;
 
+    if (origError instanceof BaseError) {
+      // log out the original error
+      console.log(origError)
+
+      // Convert out to an Apollo error type
+      return origError.convert()
+    }
+    
+    // log out the apollo error
+    // you would probably want to see if you can convert this
+    // to a BaseError type in your code where this may be thrown from
+    console.log(err)
+    
     return err;
   },
 });
@@ -892,11 +916,11 @@ const resolvers = {
       throw errRegistry.newError('PERMISSION_REQUIRED', 'EDITOR_SECTION_RESTRICTED')
     },
     checkAuth(parent, args, context, info) {
-      // err.convert() will return itself since onConvert() is not defined for either AUTH_REQUIRED or EDITOR_SECTION_RESTRICTED
+      // err.convert() will return ApolloError from onCreateError() since onConvert() is not defined for either AUTH_REQUIRED or EDITOR_SECTION_RESTRICTED
       throw errRegistry.newError('AUTH_REQUIRED', 'EDITOR_SECTION_RESTRICTED')
     },
     checkAuth2(parent, args, context, info) {
-      // err.convert() will return itself since onConvert() is not defined for either AUTH_REQUIRED
+      // err.convert() will return ApolloError from onCreateError() since onConvert() is not defined for either AUTH_REQUIRED
       throw errRegistry.newBareError('AUTH_REQUIRED', 'Some error message')
     },
     permRequired(parent, args, context, info) {
