@@ -9,7 +9,9 @@ import {
   LowLevelError,
   DeserializeOpts,
   GenerateLowLevelErrorOpts,
-  GenerateHighLevelErrorOpts
+  GenerateHighLevelErrorOpts,
+  ConvertedType,
+  ConvertFn
 } from './interfaces'
 
 export * from './utils'
@@ -25,5 +27,7 @@ export {
   SerializedErrorSafe,
   DeserializeOpts,
   GenerateLowLevelErrorOpts,
-  GenerateHighLevelErrorOpts
+  GenerateHighLevelErrorOpts,
+  ConvertedType,
+  ConvertFn
 }

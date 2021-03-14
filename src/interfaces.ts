@@ -2,6 +2,7 @@
  * A High Level Error definition defined by the user
  */
 import { BaseRegistryError } from './error-types/BaseRegistryError'
+import { BaseError } from './error-types/BaseError'
 
 export interface HighLevelError {
   /**
@@ -23,6 +24,16 @@ export interface HighLevelError {
    * is not defined.
    */
   logLevel?: string | number
+
+  /**
+   * Callback function to call when calling BaseError#convert().
+   *
+   * (baseError) => any type
+   *
+   * - If not defined, will return itself when convert() is called
+   * - If defined in HighLevelError, the HighLevelError definition takes priority
+   */
+  onConvert?: ConvertFn
 }
 
 /**
@@ -63,6 +74,16 @@ export interface LowLevelErrorDef {
    * a logger.
    */
   logLevel?: string | number
+
+  /**
+   * Callback function to call when calling BaseError#convert().
+   *
+   * (baseError) => any type
+   *
+   * - If not defined, will return itself when convert() is called
+   * - This definition takes priority if HighLevelError#onConvert is defined
+   */
+  onConvert?: ConvertFn
 }
 
 /**
@@ -148,6 +169,12 @@ export interface IBaseError {
   setConfig(config: IBaseErrorConfig): void
 
   /**
+   * Set the onConvert handler for convert() calls.
+   * This can also be defined via the onConvert config property in the constructor.
+   */
+  setOnConvert(convertFn: ConvertFn): void
+
+  /**
    * Attach the original error that was thrown, if available
    * @param {Error} error
    */
@@ -227,6 +254,17 @@ export interface IBaseError {
   toJSONSafe(fieldsToOmit?: string[]): Partial<SerializedErrorSafe>
 
   /**
+   * Calls the user-defined `onConvert` function to convert the error into another type.
+   * If `onConvert` is not defined, then returns the error itself.
+   */
+  convert<T = ConvertedType>(): T
+
+  /**
+   * Returns true if the onConvert handler is defined
+   */
+  hasOnConvertDefined(): boolean
+
+  /**
    * Stack trace
    */
   stack?: any
@@ -260,6 +298,14 @@ export interface IBaseErrorConfig {
   onPreToJSONSafeData?: (
     data: Partial<SerializedErrorSafe>
   ) => Partial<SerializedErrorSafe>
+
+  /**
+   * A callback function to call when calling BaseError#convert(). This allows for user-defined conversion
+   * of the BaseError into some other type (such as an Apollo GraphQL error type).
+   *
+   * (baseError) => any type
+   */
+  onConvert?: ConvertFn
 }
 
 /**
@@ -364,3 +410,9 @@ export interface GenerateLowLevelErrorOpts {
    */
   disableGenerateSubCode?: boolean
 }
+
+export type ConvertedType = any
+
+export type ConvertFn = <E extends BaseError = BaseError>(
+  err: E
+) => ConvertedType

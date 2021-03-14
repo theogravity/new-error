@@ -50,9 +50,12 @@ of errors to a client or for internal development / logs.
   - [Getters](#getters)
   - [Basic setters](#basic-setters)
   - [Static methods](#static-methods)
+  - [Utility methods](#utility-methods)
   - [Set an error id](#set-an-error-id)
   - [Attaching errors](#attaching-errors)
   - [Format messages](#format-messages)
+  - [Converting the error into another type](#converting-the-error-into-another-type)
+    - [Apollo GraphQL example](#apollo-graphql-example)
   - [Adding metadata](#adding-metadata)
     - [Safe metadata](#safe-metadata)
     - [Internal metadata](#internal-metadata)
@@ -591,7 +594,7 @@ function handleError(err) {
 
 Except for the getter and serialization methods, all other methods are chainable.
 
-Generated errors extend the `BaseError` class, which supplies the manipulation methods.
+Generated errors extend the `BaseError` class, which extends `Error`.
 
 ## Constructor
 
@@ -625,10 +628,19 @@ interface IBaseErrorConfig {
    * prior to field omission. If defined, must return the data back.
    */
   onPreToJSONSafeData?: (data: Partial<SerializedErrorSafe>) => Partial<SerializedErrorSafe>
+  /**
+   * A callback function to call when calling BaseError#convert(). This allows for user-defined conversion
+   * of the BaseError into some other type (such as a Apollo GraphQL error type).
+   *
+   * (baseError) => any type
+   */
+  onConvert?: <E extends BaseError = BaseError>(err: E) => any
 }
 ```
 
 ## Getters
+
+The following getters are included with the standard `Error` properties and methods:
 
 - `BaseError#getErrorId()`
 - `BaseError#getErrorName()`
@@ -652,10 +664,16 @@ sets the values already.
 - `BaseError#withErrorSubCode(code: string | number): this`
 - `BaseError#withLogLevel(level: string | number): this`
 - `BaseError#setConfig(config: IBaseErrorConfig): void`
+- `BaseError#setOnConvert(<E extends BaseError = BaseError>(err: E) => any): void`
 
 ## Static methods
 
 - `static BaseError#fromJSON(data: object, options?: object): BaseError`
+
+## Utility methods
+
+- `BaseError#convert<E = BaseError | any>() : E`
+- `BaseError#hasOnConvertDefined(): boolean`
 
 ## Set an error id
 
@@ -702,6 +720,129 @@ See the [`sprintf-js`](https://www.npmjs.com/package/sprintf-js) package for usa
 // 'There was a database failure, SQL err code %s' ->
 // 'There was a database failure, SQL err code SQL_ERR_1234',
 err.formatMessage('SQL_ERR_1234')
+```
+
+The message can be accessed via the `.message` property.
+
+## Converting the error into another type
+
+Method: `BaseError#convert<T = any>() : T`
+
+This is useful if you need to convert the error into another type. This type can be another error or some other data type.
+
+### Apollo GraphQL example
+
+For example, Apollo GraphQL prefers that any errors thrown from a GQL endpoint is an error that extends [`ApolloError`](https://www.apollographql.com/docs/apollo-server/data/errors/).
+
+You might find yourself doing the following pattern if your resolver happens to throw a `BaseError`:
+
+```ts
+import { GraphQLError } from 'graphql';
+import { BaseError } from 'new-error';
+import { ApolloError, ForbiddenError } from 'apollo-server';
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  formatError: (err: BaseError | ApolloError | GraphQLError | Error) => {
+    if (err instanceof BaseError) {
+
+      // re-map the BaseError into an Apollo error type
+      switch(err.getCode()) {
+        case 'PERMISSION_REQUIRED':
+          return new ForbiddenError(err.message)
+        default:
+          return new ApolloError(err.message)
+      }
+    }
+
+    return err;
+  },
+});
+```
+
+Trying to switch for every single code / subcode can be cumbersome.
+
+Instead of using this pattern, do the following so that your conversions can remain in one place:
+
+```ts
+import { GraphQLError } from 'graphql';
+import { BaseError, ErrorRegistry } from 'new-error';
+import { ApolloError, ForbiddenError } from 'apollo-server';
+
+const errors = {
+  PERMISSION_REQUIRED: {
+    className: 'PermissionRequiredError',
+    code: 'PERMISSION_REQUIRED',
+    // Define a conversion function that is called when BaseError#convert() is called
+    // error is the BaseError
+    onConvert: (error) => {
+      return new ForbiddenError(error.message)
+    }
+  },
+  AUTH_REQUIRED: {
+    className: 'AuthRequiredError',
+    code: 'AUTH_REQUIRED'
+    // onConvert is not defined, so will return the error itself when convert() is called
+  }
+}
+
+const errorCodes = {
+  ADMIN_PANEL_RESTRICTED: {
+    message: 'Access scope required: admin',
+    // This will override the PERMISSION_REQUIRED / high level error handler when BaseError#convert() is called
+    onConvert: (error) => {
+      return new ForbiddenError('Admin required')
+    }
+  },
+  EDITOR_SECTION_RESTRICTED: {
+    message: 'Access scope required: editor',
+    // no onConvert function is defined, so will use the PERMISSION_REQUIRED / high level definition if defined
+  }
+}
+
+const errRegistry = new ErrorRegistry(errors, errorCodes)
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  // errors thrown from the resolvers come here
+  formatError: (err: BaseError | ApolloError | GraphQLError | Error) => {
+    // If the error is a BaseError and the error has the onConvert handler defined
+    if (err instanceof BaseError && err.hasOnConvertDefined()) {
+      // Convert out to an Apollo error type
+      return err.convert()
+    }
+
+    return err;
+  },
+});
+
+const resolvers = {
+  Query: {
+    adminSettings(parent, args, context, info) {
+      // err.convert() will call onConvert() of ADMIN_PANEL_RESTRICTED (low level defs have higher priority)
+      throw errRegistry.newError('PERMISSION_REQUIRED', 'ADMIN_PANEL_RESTRICTED')
+    },
+    editorSettings(parent, args, context, info) {
+      // err.convert() will call onConvert() of PERMISSION_REQUIRED since EDITOR_SECTION_RESTRICTED does not
+      // have the onConvert defined
+      throw errRegistry.newError('PERMISSION_REQUIRED', 'EDITOR_SECTION_RESTRICTED')
+    },
+    checkAuth(parent, args, context, info) {
+      // err.convert() will return itself since onConvert() is not defined for either AUTH_REQUIRED or EDITOR_SECTION_RESTRICTED
+      throw errRegistry.newError('AUTH_REQUIRED', 'EDITOR_SECTION_RESTRICTED')
+    },
+    checkAuth2(parent, args, context, info) {
+      // err.convert() will return itself since onConvert() is not defined for either AUTH_REQUIRED
+      throw errRegistry.newBareError('AUTH_REQUIRED', 'Some error message')
+    },
+    permRequired(parent, args, context, info) {
+      // err.convert() will call onConvert() of PERMISSION_REQUIRED
+      throw errRegistry.newBareError('PERMISSION_REQUIRED', 'Some error message')
+    }
+  }
+}
 ```
 
 ## Adding metadata

@@ -18,6 +18,14 @@ export class BaseRegistryError extends BaseError {
     lowLevelErrorDef: LowLevelErrorInternal,
     config: IBaseErrorConfig = {}
   ) {
+    if (typeof highLevelErrorDef.onConvert === 'function') {
+      config.onConvert = highLevelErrorDef.onConvert
+    }
+
+    if (typeof lowLevelErrorDef.onConvert === 'function') {
+      config.onConvert = lowLevelErrorDef.onConvert
+    }
+
     super(lowLevelErrorDef.message, config)
 
     this.withErrorCode(highLevelErrorDef.code)
