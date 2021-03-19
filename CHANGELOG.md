@@ -1,3 +1,11 @@
+## 2.1.4 - Fri Mar 19 2021 04:22:07
+
+**Contributor:** Theo Gravity
+
+- Fix typescript intelligence on `ErrorRegistry#withContext()`
+
+The return type of `withContext()` was being inferred as `any` by Typescript. This now appropriately set to return `ErrorRegistry<HLErrors, LLErrors>`.
+
 ## 2.1.3 - Fri Mar 19 2021 02:55:37
 
 **Contributor:** Theo Gravity
