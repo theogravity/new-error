@@ -29,7 +29,9 @@ of errors to a client or for internal development / logs.
   - [With the error registry](#with-the-error-registry)
     - [Helper utilities](#helper-utilities)
       - [Auto-generate high level error properties](#auto-generate-high-level-error-properties)
+        - [Configuration:](#configuration)
       - [Auto-generate low level error properties](#auto-generate-low-level-error-properties)
+        - [Configuration:](#configuration-1)
   - [Class-based with low level errors without a registry](#class-based-with-low-level-errors-without-a-registry)
   - [Bare-bones class-based error](#bare-bones-class-based-error)
 - [Example Express Integration](#example-express-integration)
@@ -37,8 +39,10 @@ of errors to a client or for internal development / logs.
 - [Error Registry API](#error-registry-api)
   - [Constructor](#constructor)
     - [Configuration options](#configuration-options)
+    - [Example](#example)
   - [Child registry with context](#child-registry-with-context)
     - [Configuration options](#configuration-options-1)
+    - [Example](#example-1)
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
     - [Create an error without a low-level error](#create-an-error-without-a-low-level-error)
@@ -276,7 +280,7 @@ const errors = generateHighLevelErrors({
 
 - If a `className` or `code` is already defined, it will not overwrite it
 
-Options:
+##### Configuration:
 
 ```ts
 interface GenerateHighLevelErrorOpts {
@@ -320,7 +324,7 @@ const errors = generateLowLevelErrors({
 
 - If a `subCode` is already defined, it will not overwrite it
 
-Options:
+##### Configuration:
 
 ```ts
 interface GenerateLowLevelErrorOpts {
@@ -531,7 +535,7 @@ interface IErrorRegistryConfig {
 }
 ```
 
-Example:
+### Example
 
 ```ts
 const errRegistry = new ErrorRegistry(errors, errorSubCodes, {
@@ -571,7 +575,7 @@ export interface IErrorRegistryContextConfig {
 }
 ```
 
-Example:
+### Example
 
 ```typescript
 const childRegistry = errRegistry.withContext({
@@ -621,7 +625,7 @@ If we do `err.toJSON()`, we should get the following output:
   type: 'DATABASE_FAILURE',
   subCode: 'DB_ERR',
   statusCode: 500,
-  // err.toJSONSafe() would exclude contextA
+  // err.toJSONSafe() would exclude contextA and moreMeta
   meta: { contextA: 'context-a', contextB: 'context-b', moreMeta: 'data' },
   stack: '...'
 }
