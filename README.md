@@ -29,19 +29,19 @@ of errors to a client or for internal development / logs.
   - [With the error registry](#with-the-error-registry)
     - [Helper utilities](#helper-utilities)
       - [Auto-generate high level error properties](#auto-generate-high-level-error-properties)
-        - [Configuration:](#configuration)
+        - [Configuration options](#configuration-options)
       - [Auto-generate low level error properties](#auto-generate-low-level-error-properties)
-        - [Configuration:](#configuration-1)
+        - [Configuration options](#configuration-options-1)
   - [Class-based with low level errors without a registry](#class-based-with-low-level-errors-without-a-registry)
   - [Bare-bones class-based error](#bare-bones-class-based-error)
 - [Example Express Integration](#example-express-integration)
 - [Working with log levels](#working-with-log-levels)
 - [Error Registry API](#error-registry-api)
   - [Constructor](#constructor)
-    - [Configuration options](#configuration-options)
+    - [Configuration options](#configuration-options-2)
     - [Example](#example)
   - [Child registry with context](#child-registry-with-context)
-    - [Configuration options](#configuration-options-1)
+    - [Configuration options](#configuration-options-3)
     - [Example](#example-1)
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
@@ -55,7 +55,7 @@ of errors to a client or for internal development / logs.
     - [Native `instanceof`](#native-instanceof)
 - [Error API](#error-api)
   - [Constructor](#constructor-1)
-    - [Configuration options](#configuration-options-2)
+    - [Configuration options](#configuration-options-4)
   - [Getters](#getters)
   - [Basic setters](#basic-setters)
   - [Static methods](#static-methods)
@@ -99,6 +99,7 @@ In a production-level application, I've experienced the following use-cases:
 - Error responses from an API service should follow a common format.
 - End-users / clients should be able to relay the error back to support; the relayed data should be enough for a developer to troubleshoot.
 - Client developers prefer a list of error codes to expect from an API service so they can properly handle errors.
+- You want to classify the types of errors that your application is emitting in your metrics / analytics tool.
 
 `new-error` was built with these use-cases in mind.
 
@@ -280,7 +281,7 @@ const errors = generateHighLevelErrors({
 
 - If a `className` or `code` is already defined, it will not overwrite it
 
-##### Configuration:
+##### Configuration options
 
 ```ts
 interface GenerateHighLevelErrorOpts {
@@ -324,7 +325,7 @@ const errors = generateLowLevelErrors({
 
 - If a `subCode` is already defined, it will not overwrite it
 
-##### Configuration:
+##### Configuration options
 
 ```ts
 interface GenerateLowLevelErrorOpts {
