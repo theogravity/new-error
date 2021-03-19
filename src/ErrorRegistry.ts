@@ -267,7 +267,9 @@ export class ErrorRegistry<
    * Memory overhead should be trivial as the internal *references* of the existing
    * error registry instance properties is copied over to the new instance.
    */
-  withContext (context: IErrorRegistryContextConfig) {
+  withContext (
+    context: IErrorRegistryContextConfig
+  ): ErrorRegistry<HLErrors, LLErrors> {
     const registry = new ErrorRegistry({}, {})
 
     Object.keys(this).forEach(property => {
