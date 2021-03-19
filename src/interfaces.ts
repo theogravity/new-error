@@ -331,6 +331,17 @@ export interface IErrorRegistryConfig {
   onCreateError?: (err: BaseRegistryError) => void
 }
 
+export interface IErrorRegistryContextConfig {
+  /**
+   * Metadata to include for each new error created by the registry
+   */
+  metadata?: Record<any, string>
+  /**
+   * Safe metadata to include for each new error created by the registry
+   */
+  safeMetadata?: Record<any, string>
+}
+
 /**
  * Safe-version of a serialized error object that can be shown to a client /
  * end-user.

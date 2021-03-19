@@ -37,6 +37,8 @@ of errors to a client or for internal development / logs.
 - [Error Registry API](#error-registry-api)
   - [Constructor](#constructor)
     - [Configuration options](#configuration-options)
+  - [Child registry with context](#child-registry-with-context)
+    - [Configuration options](#configuration-options-1)
   - [Creating errors](#creating-errors)
     - [Create a well-defined error](#create-a-well-defined-error)
     - [Create an error without a low-level error](#create-an-error-without-a-low-level-error)
@@ -49,7 +51,7 @@ of errors to a client or for internal development / logs.
     - [Native `instanceof`](#native-instanceof)
 - [Error API](#error-api)
   - [Constructor](#constructor-1)
-    - [Configuration options](#configuration-options-1)
+    - [Configuration options](#configuration-options-2)
   - [Getters](#getters)
   - [Basic setters](#basic-setters)
   - [Static methods](#static-methods)
@@ -539,6 +541,90 @@ const errRegistry = new ErrorRegistry(errors, errorSubCodes, {
     omitEmptyMetadata: true
   }
 })
+```
+
+## Child registry with context
+
+`ErrorRegistry#withContext(context: IErrorRegistryContextConfig)`
+
+You can create a child registry that adds context for all new errors created. This is useful if
+your body of code throws multiple errors and you want to include the same metadata for each one
+without repeating yourself.
+
+- All property **references** are copied to the child registry from the parent. This keeps memory usage
+low as the references are re-used vs a complete clone of the data.
+- Because all properties are copied over, the child registry will execute any handlers / config options
+the parent has when creating new errors.
+
+### Configuration options
+
+```typescript
+export interface IErrorRegistryContextConfig {
+  /**
+   * Metadata to include for each new error created by the registry
+   */
+  metadata?: Record<any, string>
+  /**
+   * Safe metadata to include for each new error created by the registry
+   */
+  safeMetadata?: Record<any, string>
+}
+```
+
+Example:
+
+```typescript
+const childRegistry = errRegistry.withContext({
+  metadata: {
+    contextA: 'context-a'
+  },
+  safeMetadata: {
+    contextB: 'context-b'
+  }
+})
+
+const err = childRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+```
+
+If we do `err.toJSON()`, we should get the following output:
+
+```json5
+{
+  name: 'InternalServerError',
+  code: 'INT_ERR',
+  message: 'There is an issue with the database',
+  type: 'DATABASE_FAILURE',
+  subCode: 'DB_ERR',
+  statusCode: 500,
+  // err.toJSONSafe() would exclude contextA
+  meta: { contextA: 'context-a', contextB: 'context-b' },
+  stack: '...'
+}
+```
+
+We can also append data:
+
+```typescript
+const err = childRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+  .withMetadata({
+    moreMeta: 'data'
+  })
+```
+
+If we do `err.toJSON()`, we should get the following output:
+
+```json5
+{
+  name: 'InternalServerError',
+  code: 'INT_ERR',
+  message: 'There is an issue with the database',
+  type: 'DATABASE_FAILURE',
+  subCode: 'DB_ERR',
+  statusCode: 500,
+  // err.toJSONSafe() would exclude contextA
+  meta: { contextA: 'context-a', contextB: 'context-b', moreMeta: 'data' },
+  stack: '...'
+}
 ```
 
 ## Creating errors

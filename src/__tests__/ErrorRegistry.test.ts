@@ -199,6 +199,71 @@ describe('ErrorRegistry', () => {
     expect(registry.newError('HIGH_LV_ERR', 'LOW_LV_ERR')).toBeDefined()
   })
 
+  describe('withContext', () => {
+    it('should create a new registry and error with context', () => {
+      const registry = new ErrorRegistry(errors, errorCodes)
+      const contextRegistry = registry.withContext({
+        metadata: {
+          contextA: 'context-a'
+        },
+        safeMetadata: {
+          contextB: 'context-b'
+        }
+      })
+
+      Object.keys(registry).forEach(property => {
+        // this will be different between the two
+        if (property === '_newErrorContext') {
+          return
+        }
+
+        expect(contextRegistry[property]).toEqual(registry[property])
+      })
+
+      const err = registry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
+      const errContext = contextRegistry.newError(
+        'INTERNAL_SERVER_ERROR',
+        'DATABASE_FAILURE'
+      )
+
+      expect(err.toJSON().meta).toEqual({})
+
+      expect(errContext.toJSON().meta).toEqual({
+        contextA: 'context-a',
+        contextB: 'context-b'
+      })
+
+      err.withMetadata({
+        test: 'test'
+      })
+
+      expect(err.toJSON().meta).toEqual({
+        test: 'test'
+      })
+
+      errContext.withMetadata({
+        test2: 'test2'
+      })
+
+      expect(errContext.toJSON().meta).toEqual({
+        contextA: 'context-a',
+        contextB: 'context-b',
+        test2: 'test2'
+      })
+    })
+
+    it('should not add any data if none is specified', () => {
+      const registry = new ErrorRegistry(errors, errorCodes)
+      const contextRegistry = registry.withContext({})
+
+      const errContext = contextRegistry.newError(
+        'INTERNAL_SERVER_ERROR',
+        'DATABASE_FAILURE'
+      )
+      expect(errContext.toJSON().meta).toEqual({})
+    })
+  })
+
   describe('deserialization', () => {
     it('should throw if data is not an object', () => {
       const registry = new ErrorRegistry(errors, errorCodes)

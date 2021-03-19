@@ -4,6 +4,7 @@ import {
   HLDefs,
   IBaseError,
   IErrorRegistryConfig,
+  IErrorRegistryContextConfig,
   KeyOfStr,
   LLDefs,
   LowLevelErrorInternal,
@@ -49,6 +50,11 @@ export class ErrorRegistry<
    */
   protected _config: IErrorRegistryConfig
 
+  /**
+   * Error metadata to always include in an error
+   */
+  protected _newErrorContext: IErrorRegistryContextConfig | null
+
   constructor (
     highLvErrors: HLErrors,
     lowLvErrors: LLErrors,
@@ -59,6 +65,7 @@ export class ErrorRegistry<
     this.classNameHighLevelNameMap = {} as any
     this.highLevelErrorClasses = {} as any
     this._config = config
+    this._newErrorContext = null
 
     Object.keys(highLvErrors).forEach(name => {
       this.classNameHighLevelNameMap[highLvErrors[name].className] = name
@@ -157,7 +164,7 @@ export class ErrorRegistry<
 
     this.reformatTrace(err)
 
-    return err
+    return this.assignErrContext(err)
   }
 
   /**
@@ -187,7 +194,7 @@ export class ErrorRegistry<
 
     this.reformatTrace(err)
 
-    return err
+    return this.assignErrContext(err)
   }
 
   /**
@@ -198,6 +205,25 @@ export class ErrorRegistry<
     const stack = err.stack.split('\n')
     stack.splice(1, 1)
     err.stack = stack.join('\n')
+  }
+
+  /**
+   * If a new error context is defined, then set the values
+   */
+  private assignErrContext (err: BaseError) {
+    if (!this._newErrorContext) {
+      return err
+    }
+
+    if (this._newErrorContext.metadata) {
+      err.withMetadata(this._newErrorContext.metadata)
+    }
+
+    if (this._newErrorContext.safeMetadata) {
+      err.withSafeMetadata(this._newErrorContext.safeMetadata)
+    }
+
+    return err
   }
 
   /**
@@ -232,5 +258,25 @@ export class ErrorRegistry<
     }
 
     return err
+  }
+
+  /**
+   * Creates a new error registry instance that will include / set specific data
+   * for each new error created.
+   *
+   * Memory overhead should be trivial as the internal *references* of the existing
+   * error registry instance properties is copied over to the new instance.
+   */
+  withContext (context: IErrorRegistryContextConfig) {
+    const registry = new ErrorRegistry({}, {})
+
+    Object.keys(this).forEach(property => {
+      // copy over references vs creating completely new entries
+      registry[property] = this[property]
+    })
+
+    registry._newErrorContext = context
+
+    return registry as ErrorRegistry<HLErrors, LLErrors>
   }
 }
