@@ -1,3 +1,17 @@
+## 2.1.1 - Fri Mar 19 2021 02:47:52
+
+**Contributor:** Theo Gravity
+
+- Add the ability to create child error registries
+
+You can now create child registries with context via `ErrorRegistry#withContext()` that will create
+errors with the predefined context.
+
+The use-case is if your code block throws many errors, and you want to use the same metadata without
+setting it each time, so code is not duplicated.
+
+See readme for more information.
+
 ## 2.0.2 - Sun Mar 14 2021 22:12:56
 
 **Contributor:** Theo Gravity
