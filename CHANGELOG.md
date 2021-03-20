@@ -1,3 +1,11 @@
+## 2.1.5 - Sat Mar 20 2021 05:11:00
+
+**Contributor:** Theo Gravity
+
+- Fix `BaseError#setConfig()` not being chainable
+
+It was returning void rather than the instance back. This fixes that.
+
 ## 2.1.4 - Fri Mar 19 2021 04:22:07
 
 **Contributor:** Theo Gravity
