@@ -167,6 +167,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    */
   setConfig (config: IBaseErrorConfig) {
     this._config = config
+    return this
   }
 
   /**
