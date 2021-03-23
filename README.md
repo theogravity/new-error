@@ -980,7 +980,7 @@ const server = new ApolloServer({
 
     if (origError instanceof BaseError) {
       // log out the original error
-      console.log(origError)
+      console.log(origError.toJSON())
 
       // Convert out to an Apollo error type
       return origError.convert()
