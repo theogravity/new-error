@@ -1,3 +1,9 @@
+## 2.1.6 - Fri Apr 02 2021 20:34:42
+
+**Contributor:** dependabot[bot]
+
+- Bump y18n from 4.0.0 to 4.0.1 (#13)
+
 ## 2.1.5 - Sat Mar 20 2021 05:11:00
 
 **Contributor:** Theo Gravity
