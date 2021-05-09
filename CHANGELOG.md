@@ -1,3 +1,18 @@
+## 2.1.8 - Sun May 09 2021 20:32:52
+
+**Contributor:** dependabot[bot]
+
+- Bump lodash from 4.17.20 to 4.17.21 (#15)
+
+Bumps [lodash](https://github.com/lodash/lodash) from 4.17.20 to 4.17.21.
+- [Release notes](https://github.com/lodash/lodash/releases)
+- [Commits](https://github.com/lodash/lodash/compare/4.17.20...4.17.21)
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Co-authored-by: Theo Gravity <theo@suteki.nu>
+
 ## 2.1.7 - Sun May 09 2021 20:30:20
 
 **Contributor:** dependabot[bot]
