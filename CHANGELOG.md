@@ -1,3 +1,18 @@
+## 2.1.7 - Sun May 09 2021 20:30:20
+
+**Contributor:** dependabot[bot]
+
+- Bump handlebars from 4.7.6 to 4.7.7 (#14)
+
+Bumps [handlebars](https://github.com/wycats/handlebars.js) from 4.7.6 to 4.7.7.
+- [Release notes](https://github.com/wycats/handlebars.js/releases)
+- [Changelog](https://github.com/handlebars-lang/handlebars.js/blob/master/release-notes.md)
+- [Commits](https://github.com/wycats/handlebars.js/compare/v4.7.6...v4.7.7)
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
 ## 2.1.6 - Fri Apr 02 2021 20:34:42
 
 **Contributor:** dependabot[bot]
