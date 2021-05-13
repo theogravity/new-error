@@ -1,3 +1,9 @@
+## 2.1.9 - Thu May 13 2021 03:11:48
+
+**Contributor:** dependabot[bot]
+
+- Bump hosted-git-info from 2.8.8 to 2.8.9 (#16)
+
 ## 2.1.8 - Sun May 09 2021 20:32:52
 
 **Contributor:** dependabot[bot]
