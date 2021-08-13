@@ -62,6 +62,7 @@ of errors to a client or for internal development / logs.
   - [Utility methods](#utility-methods)
   - [Set an error id](#set-an-error-id)
   - [Attaching errors](#attaching-errors)
+    - [Append the attached error message to the main error message](#append-the-attached-error-message-to-the-main-error-message)
   - [Format messages](#format-messages)
   - [Converting the error into another type](#converting-the-error-into-another-type)
     - [Apollo GraphQL example](#apollo-graphql-example)
@@ -788,6 +789,14 @@ interface IBaseErrorConfig {
    * (baseError) => any type
    */
   onConvert?: <E extends BaseError = BaseError>(err: E) => any
+  /**
+   * If defined, will append the `.message` value when calling causedBy() after the main error message.
+   * Useful for frameworks like Jest where it will not print the caused by data.
+   * To define the format of the appended message, use '%s' for the message value.
+   *
+   * Ex: ", caused by: %s"
+   */
+  appendWithErrorMessageFormat?: string
 }
 ```
 
@@ -860,6 +869,57 @@ You can attach another error to the error.
 const externalError = new Error('Some thrown error')
 err.causedBy(externalError)
 ```
+
+### Append the attached error message to the main error message
+
+If the config option `appendWithErrorMessageFormat` is defined, and the error sent into `causedBy`
+contains a `message` property, then the caused by error message will be appended to the main error message.
+
+Useful if you find yourself applying this pattern to expose the attached error message:
+
+```typescript
+const thrownErrorFromApp = new Error('Duplicate key error')
+const err = new BaseError('Internal server error: %s');
+err.causedBy(thrownErrorFromApp)
+err.formatMessage(thrownErrorFromApp.message);
+```
+  
+This is also useful for test frameworks like `jest` where it will only print out the main error message
+and not any properties attached to the error.
+
+```typescript
+// only enable for testing envs
+const IS_TEST_ENV = process.env.NODE_ENV === 'test';
+const err = new BaseError('Internal server error', {
+  // %s is the attached error message
+  appendWithErrorMessageFormat: IS_TEST_ENV ? ': %s' : null
+})
+
+err.causedBy(new Error('Duplicate key'))
+
+// prints out "Internal server error: Duplicate key"
+console.log(err.message)
+```
+
+```typescript
+// formatted messages also work with this
+const IS_TEST_ENV = process.env.NODE_ENV === 'test';
+const err = new BaseError('Internal server error: %s', {
+  appendWithErrorMessageFormat: IS_TEST_ENV ? '===> %s' : null
+})
+
+// formatMessage / causedBy can be called in any order
+err.formatMessage('Hello')
+err.causedBy(new Error('Duplicate key'))
+
+// prints out "Internal server error: Hello ===> Duplicate key"
+console.log(err.message)
+```
+
+**It is not recommended that `appendWithErrorMessageFormat` is defined in a production environment
+as the `causedBy` error messages tend to be system-level messages that could be exposed to clients
+if the error is being thrown back to the client**.
+
 
 ## Format messages
 

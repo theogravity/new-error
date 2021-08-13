@@ -315,6 +315,14 @@ export interface IBaseErrorConfig {
    * (baseError) => any type
    */
   onConvert?: ConvertFn
+  /**
+   * If defined, will append the `.message` value when calling causedBy() after the main error message.
+   * Useful for test frameworks like Jest where it will not print the caused by message.
+   * To define the format of the appended message, use '%s' for the message value.
+   *
+   * See readme for examples.
+   */
+  appendWithErrorMessageFormat?: string
 }
 
 /**

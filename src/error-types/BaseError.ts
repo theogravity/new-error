@@ -27,6 +27,7 @@ export class BaseError extends ExtendableError implements IBaseError {
   protected _hasMetadata: boolean
   protected _hasSafeMetadata: boolean
   protected _onConvert: ConvertFn | null
+  protected _appendedWithErrorMsg: boolean
 
   constructor (message: string, config: IBaseErrorConfig = {}) {
     super(message)
@@ -37,6 +38,7 @@ export class BaseError extends ExtendableError implements IBaseError {
     this._hasSafeMetadata = false
     this._config = config || {}
     this._onConvert = this._config.onConvert || null
+    this._appendedWithErrorMsg = false
   }
 
   /**
@@ -177,6 +179,7 @@ export class BaseError extends ExtendableError implements IBaseError {
    */
   formatMessage (...args) {
     this.message = vsprintf(this.message, args)
+    this.appendCausedByMessage()
     return this
   }
 
@@ -186,7 +189,28 @@ export class BaseError extends ExtendableError implements IBaseError {
    */
   causedBy (error: any) {
     this._causedBy = error
+    this.appendCausedByMessage()
     return this
+  }
+
+  /**
+   * Appends the caused by message to the main error message if
+   * the appendWithErrorMessageFormat config item is defined.
+   */
+  protected appendCausedByMessage () {
+    if (
+      !this._appendedWithErrorMsg &&
+      this._causedBy?.message &&
+      this._config.appendWithErrorMessageFormat
+    ) {
+      this.message =
+        this.message +
+        vsprintf(
+          this._config.appendWithErrorMessageFormat,
+          this._causedBy.message
+        )
+      this._appendedWithErrorMsg = true
+    }
   }
 
   /**

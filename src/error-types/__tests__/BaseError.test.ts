@@ -244,6 +244,37 @@ describe('BaseError', () => {
     expect(err.getConfig()).toBeDefined()
   })
 
+  describe('append caused by message', () => {
+    it('should append the caused by message to the main message', () => {
+      const err = new BaseError('Root error', {
+        appendWithErrorMessageFormat: ': %s'
+      })
+      err.causedBy(new Error('Sub error'))
+      expect(err.message).toBe('Root error: Sub error')
+      expect(err.toJSON().message).toBe('Root error: Sub error')
+    })
+
+    it('should append the caused by message to the main message with format', () => {
+      const err = new BaseError('Root error: %s', {
+        appendWithErrorMessageFormat: ': %s'
+      })
+      err.formatMessage('Root cause')
+      err.causedBy(new Error('Sub error'))
+      expect(err.message).toBe('Root error: Root cause: Sub error')
+      expect(err.toJSON().message).toBe('Root error: Root cause: Sub error')
+    })
+
+    it('should append the caused by message to the main message with format reversed', () => {
+      const err = new BaseError('Root error: %s', {
+        appendWithErrorMessageFormat: ': %s'
+      })
+      err.causedBy(new Error('Sub error'))
+      err.formatMessage('Root cause')
+      expect(err.message).toBe('Root error: Root cause: Sub error')
+      expect(err.toJSON().message).toBe('Root error: Root cause: Sub error')
+    })
+  })
+
   describe('conversion', () => {
     it('should return false if onConvert is not defined', () => {
       const err = new BaseError('test')
