@@ -1,3 +1,13 @@
+## 2.1.11 - Fri Aug 13 2021 03:59:06
+
+**Contributor:** Theo Gravity
+
+- [minor] Add config option to append attached error message to main error message (#21)
+
+Added a `BaseError` config option, `appendWithErrorMessageFormat`, which
+will append the attached error message to the main error message. Useful
+for testing frameworks like Jest, which will not print the attached message.
+
 ## 2.1.10 - Fri May 28 2021 00:34:25
 
 **Contributor:** dependabot[bot]
