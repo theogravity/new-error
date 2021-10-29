@@ -1,3 +1,23 @@
+## 2.1.12 - Fri Oct 29 2021 19:39:32
+
+**Contributor:** dependabot[bot]
+
+- Bump tmpl from 1.0.4 to 1.0.5 (#22)
+
+Bumps [tmpl](https://github.com/daaku/nodejs-tmpl) from 1.0.4 to 1.0.5.
+- [Release notes](https://github.com/daaku/nodejs-tmpl/releases)
+- [Commits](https://github.com/daaku/nodejs-tmpl/commits/v1.0.5)
+
+---
+updated-dependencies:
+- dependency-name: tmpl
+  dependency-type: indirect
+...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
 ## 2.1.11 - Fri Aug 13 2021 03:59:06
 
 **Contributor:** Theo Gravity
