@@ -1,3 +1,9 @@
+## 2.1.13 - Fri Jan 28 2022 22:41:55
+
+**Contributor:** Theo Gravity
+
+- Fix onConvert() failing in certain situations (#23)
+
 ## 2.1.12 - Fri Oct 29 2021 19:39:32
 
 **Contributor:** dependabot[bot]
