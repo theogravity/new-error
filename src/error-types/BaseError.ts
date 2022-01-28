@@ -361,8 +361,8 @@ export class BaseError extends ExtendableError implements IBaseError {
    * If `onConvert` is not defined, then returns the error itself.
    */
   convert<T = ConvertedType> (): T {
-    if (this._onConvert) {
-      return this._onConvert(this) as T
+    if (this.hasOnConvertDefined()) {
+      return this._onConvert.bind(this)(this) as T
     }
 
     return this as any
