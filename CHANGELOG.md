@@ -1,3 +1,11 @@
+## 2.1.14 - Tue Aug 09 2022 19:41:09
+
+**Contributor:** Theo Gravity
+
+- Update dev deps, export IBaseErrorConfig interface (#24)
+
+This includes the IBaseErrorConfig interface as a mainline export
+
 ## 2.1.13 - Fri Jan 28 2022 22:41:55
 
 **Contributor:** Theo Gravity
