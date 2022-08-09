@@ -14,7 +14,8 @@ import {
   ConvertFn,
   HLDefs,
   LLDefs,
-  KeyOfStr
+  KeyOfStr,
+  IBaseErrorConfig
 } from './interfaces'
 
 import { generateHighLevelErrors, generateLowLevelErrors } from './utils'
@@ -37,5 +38,6 @@ export {
   ConvertFn,
   HLDefs,
   LLDefs,
-  KeyOfStr
+  KeyOfStr,
+  IBaseErrorConfig
 }
