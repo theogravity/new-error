@@ -1,3 +1,9 @@
+## 2.1.15 - Thu Nov 10 2022 23:14:01
+
+**Contributor:** dependabot[bot]
+
+- Bump minimatch from 3.0.4 to 3.1.2 (#25)
+
 ## 2.1.14 - Tue Aug 09 2022 19:41:09
 
 **Contributor:** Theo Gravity
