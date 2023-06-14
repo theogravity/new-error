@@ -61,6 +61,7 @@ of errors to a client or for internal development / logs.
   - [Static methods](#static-methods)
   - [Utility methods](#utility-methods)
   - [Set an error id](#set-an-error-id)
+  - [Set a request id](#set-a-request-id)
   - [Attaching errors](#attaching-errors)
     - [Append the attached error message to the main error message](#append-the-attached-error-message-to-the-main-error-message)
   - [Format messages](#format-messages)
@@ -216,7 +217,7 @@ const errRegistry = new ErrorRegistry(errors, errorSubCodes)
 // Typescript autocomplete should show the available definitions as you type the error names
 // and type check will ensure that the values are valid
 const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
-  .setErrorId('err-1234')
+  .withErrorId('err-1234')
   .formatMessage('SQL_1234')
 
 console.log(err.toJSON())
@@ -805,6 +806,7 @@ interface IBaseErrorConfig {
 The following getters are included with the standard `Error` properties and methods:
 
 - `BaseError#getErrorId()`
+- `BaseError#getRequestId()`
 - `BaseError#getErrorName()`
 - `BaseError#getCode()`
 - `BaseError#getErrorType()`
@@ -855,6 +857,28 @@ err.withErrorId(nanoid())
 logger.error(err.toJSON())
 
 // expose the error to the client via err.toJSONSafe() or err.getErrorId(), which 
+// will also include the error id - an end-user can reference this id to 
+// support for troubleshooting
+```
+
+## Set a request id
+
+Method: `BaseError#withRequestId(reqId: string)`
+
+Attaches request id to the error. Useful if you want to display the request id to a client / end-user
+and want to cross-reference that id in an internal logging system for easier troubleshooting.
+
+For example, you might want to use [`nanoid`](https://github.com/ai/nanoid) to generate ids.
+
+```typescript
+import { nanoid } from 'nanoid'
+
+err.withRequestId(nanoid())
+
+// In your logging system, log the error, which will include the error id
+logger.error(err.toJSON())
+
+// expose the error to the client via err.toJSONSafe() or err.getRequestId(), which 
 // will also include the error id - an end-user can reference this id to 
 // support for troubleshooting
 ```
@@ -1243,7 +1267,7 @@ const errRegistry = new ErrorRegistry(errors, errorSubCodes, {
 })
 
 const err = errRegistry.newError('INTERNAL_SERVER_ERROR', 'DATABASE_FAILURE')
-  .setErrorId('err-1234')
+  .withErrorId('err-1234')
   .formatMessage('SQL_1234')
 
 // should produce the standard error structure, but with the new fields added

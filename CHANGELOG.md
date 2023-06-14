@@ -1,3 +1,9 @@
+## 2.2.0 - Wed Jun 14 2023 12:01:40
+
+**Contributor:** Theo Gravity
+
+- Add `withRequestId()` / `getRequestId()` to `BaseError`
+
 ## 2.1.15 - Thu Nov 10 2022 23:14:01
 
 **Contributor:** dependabot[bot]

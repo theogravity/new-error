@@ -390,6 +390,7 @@ describe('BaseError', () => {
     it('should deserialize an error without options', () => {
       const err = new BaseError('test message')
         .withErrorId('err-123')
+        .withRequestId('req-123')
         .withErrorType('DATABASE_FAILURE')
         .withErrorCode('ERR_INT_500')
         .withErrorSubCode('DB_0001')
@@ -415,7 +416,9 @@ describe('BaseError', () => {
       expect(err2.toJSON()).toEqual(
         expect.objectContaining({
           errId: 'err-123',
+          reqId: 'req-123',
           code: 'ERR_INT_500',
+          logLevel: 'error',
           subCode: 'DB_0001',
           message: 'test message',
           meta: { safe: 'test454', test: 'test123' },
@@ -429,6 +432,7 @@ describe('BaseError', () => {
     it('should deserialize an error with options', () => {
       const err = new BaseError('test message')
         .withErrorId('err-123')
+        .withRequestId('req-123')
         .withErrorType('DATABASE_FAILURE')
         .withErrorCode('ERR_INT_500')
         .withErrorSubCode('DB_0001')
@@ -456,6 +460,8 @@ describe('BaseError', () => {
       expect(err2.toJSON()).toEqual(
         expect.objectContaining({
           errId: 'err-123',
+          reqId: 'req-123',
+          logLevel: 'error',
           code: 'ERR_INT_500',
           subCode: 'DB_0001',
           message: 'test message',

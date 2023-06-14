@@ -196,6 +196,12 @@ export interface IBaseError {
   withErrorId(errId: string): this
 
   /**
+   * Set an request id used to link back to the specific error
+   * @param {string} reqId
+   */
+  withRequestId(reqId: string): this
+
+  /**
    * Set the error type
    * @param type
    */
@@ -359,6 +365,10 @@ export interface SerializedErrorSafe {
    * The error id
    */
   errId?: string
+  /**
+   * The request id
+   */
+  reqId?: string
   /**
    * The high level code to show to a client.
    */

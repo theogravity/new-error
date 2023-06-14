@@ -15,6 +15,7 @@ import {
  */
 export class BaseError extends ExtendableError implements IBaseError {
   protected _errId: string
+  protected _reqId: string
   protected _type: string
   protected _code: string | number
   protected _subCode: string | number
@@ -61,6 +62,15 @@ export class BaseError extends ExtendableError implements IBaseError {
   }
 
   /**
+   * Set a request id used to link back to the specific error
+   * @param requestId
+   */
+  withRequestId (requestId: string) {
+    this._reqId = requestId
+    return this
+  }
+
+  /**
    * Set the error type
    * @param type
    */
@@ -99,6 +109,13 @@ export class BaseError extends ExtendableError implements IBaseError {
    */
   getErrorId () {
     return this._errId
+  }
+
+  /**
+   * Get the request id associated with the error
+   */
+  getRequestId () {
+    return this._reqId
   }
 
   /**
@@ -261,6 +278,7 @@ export class BaseError extends ExtendableError implements IBaseError {
   toJSON (fieldsToOmit: string[] = []): Partial<SerializedError> {
     let data: Partial<SerializedError> = {
       errId: this._errId,
+      reqId: this._reqId,
       name: this.name,
       code: this._code,
       message: this.message,
@@ -318,6 +336,7 @@ export class BaseError extends ExtendableError implements IBaseError {
   toJSONSafe (fieldsToOmit: string[] = []): Partial<SerializedErrorSafe> {
     let data: Partial<SerializedErrorSafe> = {
       errId: this._errId,
+      reqId: this._reqId,
       code: this._code,
       subCode: this._subCode,
       statusCode: this._statusCode,
@@ -404,6 +423,10 @@ export class BaseError extends ExtendableError implements IBaseError {
 
     if (data.errId) {
       errInstance.withErrorId(data.errId)
+    }
+
+    if (data.reqId) {
+      errInstance.withRequestId(data.reqId)
     }
 
     if (data.statusCode) {

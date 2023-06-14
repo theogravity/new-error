@@ -17,6 +17,7 @@ describe('BaseRegistryError', () => {
     )
 
     err.withErrorId('err-id')
+    err.withRequestId('req-id')
 
     expect(err.toJSON()).toEqual(
       expect.objectContaining({
@@ -29,6 +30,7 @@ describe('BaseRegistryError', () => {
     )
 
     expect(err.getErrorId()).toBe('err-id')
+    expect(err.getRequestId()).toBe('req-id')
     expect(err.getErrorName()).toBe('BaseRegistryError')
     expect(err.getCode()).toBe('TEST_ERR')
     expect(err.getSubCode()).toBe('SUB_CODE_ERR')
